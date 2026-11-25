@@ -1,0 +1,3141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="aurora">
+  <title>JANET WEATHER v.11/24/2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* 1. Aurora dark mineral-slate palette adapted for nocturnal astronomy */
+      --background: #080e14;
+      --surface-container-low: #0e171d;
+      --surface-container: #132028;
+      --surface-container-high: #1a2b35;
+
+      /* Text */
+      --on-surface: #edf3f5;
+      --on-surface-variant: #9ab0b9;
+
+      /* Borders */
+      --outline: #3c5866;
+      --outline-variant: #223540;
+
+      /* Accents */
+      --primary: #63c7d6;
+      --on-primary: #071317;
+      --primary-container: #153944;
+      --on-primary-container: #ccf2f8;
+      --secondary: #5d7882;
+      --tertiary: #87d69b;
+      --error: #f27474;
+      --on-error: #1a0606;
+
+      /* Data series */
+      --data-1: #63c7d6;
+      --data-2: #87d69b;
+      --data-3: #e8b954;
+      --data-4: #f08c70;
+      --data-context: #415861;
+
+      /* Fonts */
+      --font-headline: 'Instrument Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-label: 'Geist Mono', monospace;
+
+      /* Shape */
+      --rounded: 0.5rem;
+      --rounded-lg: 0.875rem;
+      --rounded-full: 9999px;
+
+      /* Glassmorphism & astronomical backdrop tokens */
+      --glass-bg: rgba(16, 28, 35, 0.64);
+      --glass-bg-elevated: rgba(22, 38, 47, 0.78);
+      --glass-bg-recessed: rgba(8, 14, 20, 0.72);
+      --glass-border: 1px solid rgba(154, 176, 185, 0.16);
+      --glass-border-strong: 1px solid rgba(99, 199, 214, 0.36);
+      --glass-highlight: inset 0 1px 0 rgba(237, 243, 245, 0.08);
+      --glass-shadow: 0 12px 32px rgba(3, 8, 12, 0.48);
+      --backdrop-nebula: radial-gradient(ellipse 80% 55% at 15% 8%, rgba(34, 88, 108, 0.28), transparent 60%),
+                         radial-gradient(ellipse 65% 50% at 88% 14%, rgba(56, 108, 86, 0.2), transparent 55%),
+                         radial-gradient(ellipse 70% 60% at 50% 100%, rgba(20, 48, 68, 0.32), transparent 65%);
+      --starfield-dots: radial-gradient(1px 1px at 12% 18%, rgba(237, 243, 245, 0.45), transparent),
+                        radial-gradient(1px 1px at 34% 62%, rgba(99, 199, 214, 0.35), transparent),
+                        radial-gradient(1.5px 1.5px at 58% 24%, rgba(237, 243, 245, 0.5), transparent),
+                        radial-gradient(1px 1px at 79% 41%, rgba(232, 185, 84, 0.4), transparent),
+                        radial-gradient(1px 1px at 91% 78%, rgba(237, 243, 245, 0.4), transparent),
+                        radial-gradient(1.5px 1.5px at 22% 86%, rgba(135, 214, 155, 0.35), transparent);
+      --hairline: 1px solid var(--outline-variant);
+      --hairline-strong: 1px solid var(--outline);
+      --panel-gradient: linear-gradient(180deg, rgba(22, 37, 46, 0.72) 0%, rgba(12, 22, 28, 0.68) 100%);
+      --heading-tracking: -0.025em;
+      --label-tracking: 0.06em;
+      --sage-tint: color-mix(in srgb, var(--tertiary) 14%, transparent);
+      --cyan-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+      --amber-tint: color-mix(in srgb, var(--data-3) 14%, transparent);
+      --coral-tint: color-mix(in srgb, var(--data-4) 14%, transparent);
+      --error-tint: color-mix(in srgb, var(--error) 14%, transparent);
+
+      /* Glowing status indicator tokens */
+      --glow-primary: 0 0 12px rgba(99, 199, 214, 0.55);
+      --glow-positive: 0 0 12px rgba(135, 214, 155, 0.55);
+      --glow-warning: 0 0 12px rgba(232, 185, 84, 0.55);
+      --glow-danger: 0 0 12px rgba(242, 116, 116, 0.55);
+      --day-tint: rgba(232, 185, 84, 0.08);
+      --twilight-tint: rgba(99, 199, 214, 0.09);
+      --night-tint: rgba(6, 11, 16, 0.45);
+      --overlay-scrim: rgba(4, 9, 13, 0.76);
+
+      /* 3. Shared tokens */
+      --positive: #87d69b;
+      --warning: #e8b954;
+      --focus: #63c7d6;
+
+      /* Dashboard type scale */
+      --display-size: clamp(1.65rem, 1.3rem + 1.2vw, 2.2rem);
+      --headline-size: clamp(1.1875rem, 1.05rem + 0.45vw, 1.45rem);
+      --subhead-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.12vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.25rem;
+      --space-2xl: 3.5rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Astronomical fixed backdrop */
+    .cosmos-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--background);
+      background-image: var(--backdrop-nebula), var(--starfield-dots);
+      background-size: 100% 100%, 420px 420px;
+    }
+
+    header { position: static !important; }
+
+    .page-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1340px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Glass Panels */
+    .glass-panel {
+      background: var(--panel-gradient);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: var(--glass-border);
+      box-shadow: var(--glass-highlight), var(--glass-shadow);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+
+    .glass-well {
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    /* Typography helpers */
+    .title {
+      font-family: var(--font-headline);
+      font-weight: 600;
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.1;
+      color: var(--on-surface);
+      margin: 0;
+    }
+    .display-title {
+      font-size: var(--display-size);
+      font-weight: 700;
+    }
+    .section-title {
+      font-size: var(--headline-size);
+      font-weight: 600;
+    }
+    .subhead-title {
+      font-size: var(--subhead-size);
+      font-weight: 600;
+    }
+    .data-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+    .mono-val {
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-num {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: clamp(2rem, 1.65rem + 1.2vw, 2.75rem);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.05;
+      color: var(--on-surface);
+    }
+    .muted-copy {
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    /* Glowing status dots */
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: var(--rounded-full);
+      flex-shrink: 0;
+    }
+    .dot-cyan { background: var(--primary); box-shadow: var(--glow-primary); }
+    .dot-sage { background: var(--positive); box-shadow: var(--glow-positive); }
+    .dot-amber { background: var(--warning); box-shadow: var(--glow-warning); }
+    .dot-error { background: var(--error); box-shadow: var(--glow-danger); }
+
+    /* Status badges */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .chip-cyan {
+      background: var(--cyan-tint);
+      color: var(--primary);
+      border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    }
+    .chip-sage {
+      background: var(--sage-tint);
+      color: var(--positive);
+      border: 1px solid color-mix(in srgb, var(--positive) 35%, transparent);
+    }
+    .chip-amber {
+      background: var(--amber-tint);
+      color: var(--warning);
+      border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+    }
+    .chip-coral {
+      background: var(--coral-tint);
+      color: var(--data-4);
+      border: 1px solid color-mix(in srgb, var(--data-4) 35%, transparent);
+    }
+    .chip-neutral {
+      background: var(--surface-container-high);
+      color: var(--on-surface-variant);
+      border: var(--hairline);
+    }
+
+    /* Buttons & Inputs */
+    button, input, select {
+      font-family: inherit;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      font-family: var(--font-headline);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out),
+                  transform var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out);
+    }
+    .btn:focus-visible, input:focus-visible, select:focus-visible, .cal-cell:focus-visible, .launch-item:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: var(--glow-primary);
+      background: var(--on-primary-container);
+    }
+
+    .btn-secondary {
+      background: var(--glass-bg-elevated);
+      color: var(--on-surface);
+      border: var(--hairline-strong);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--surface-container-high);
+      box-shadow: var(--glass-highlight);
+    }
+    .btn-secondary.is-active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border: var(--glass-border-strong);
+      box-shadow: var(--glow-primary);
+    }
+
+    .btn-compact {
+      min-height: 36px;
+      padding: var(--space-xs) var(--space-sm);
+      font-size: 0.8125rem;
+    }
+
+    /* Header */
+    .site-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-lg);
+    }
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .header-subtitle {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .header-telemetry {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .clock-readout {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+    }
+    .clock-time {
+      font-family: var(--font-label);
+      font-size: clamp(1.25rem, 1.05rem + 0.5vw, 1.6rem);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--primary);
+      line-height: 1.15;
+    }
+    .clock-date {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Location Search & Presets */
+    .location-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: end;
+    }
+    .search-group {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .search-row {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: end;
+    }
+    .input-field {
+      width: 100%;
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--glass-bg-recessed);
+      color: var(--on-surface);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      font-size: var(--body-size);
+    }
+    .input-field::placeholder {
+      color: var(--on-surface-variant);
+      opacity: 0.72;
+    }
+    .search-results {
+      position: absolute;
+      top: calc(100% + var(--space-xs));
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: var(--surface-container-high);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: var(--glass-border-strong);
+      border-radius: var(--rounded);
+      box-shadow: var(--glass-shadow);
+      max-height: 280px;
+      overflow-y: auto;
+      display: none;
+    }
+    .search-results.open { display: block; }
+    .search-result-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-bottom: var(--hairline);
+      color: var(--on-surface);
+      padding: var(--space-sm) var(--space-md);
+      min-height: 44px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .search-result-btn:last-child { border-bottom: none; }
+    .search-result-btn:hover, .search-result-btn:focus-visible {
+      background: var(--primary-container);
+    }
+    .presets-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .search-feedback {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      margin-top: var(--space-xs);
+      min-height: 1.2em;
+    }
+
+    /* Weather KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(265px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .kpi-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .kpi-subgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+    }
+    .stat-pair {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-pair .val {
+      font-family: var(--font-label);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Calendar + Inspector Layout */
+    .calendar-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.05fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .panel-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: var(--space-xs);
+      margin-bottom: var(--space-xs);
+      text-align: center;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: var(--space-xs);
+    }
+    .cal-grid.is-weekly {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+    .cal-cell {
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+      padding: var(--space-sm);
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-xs);
+      cursor: pointer;
+      text-align: left;
+      color: var(--on-surface);
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .cal-grid.is-weekly .cal-cell {
+      min-height: 168px;
+    }
+    .cal-cell:hover {
+      background: var(--surface-container-high);
+    }
+    .cal-cell.is-outside {
+      opacity: 0.44;
+    }
+    .cal-cell.is-today {
+      border: var(--glass-border-strong);
+      box-shadow: var(--glow-primary);
+    }
+    .cal-cell.is-selected {
+      background: var(--primary-container);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+    .cal-cell-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+    }
+    .cal-day-num {
+      font-family: var(--font-label);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .cal-temps {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--on-surface);
+    }
+    .cal-temps span {
+      color: var(--on-surface-variant);
+    }
+    .cal-moon {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cal-badges {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .cal-pill {
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      line-height: 1.2;
+      padding: 2px 5px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cal-pill-launch {
+      background: var(--cyan-tint);
+      color: var(--primary);
+      border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    }
+    .cal-pill-celestial {
+      background: var(--amber-tint);
+      color: var(--warning);
+      border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+    }
+    .cal-pill-darksky {
+      background: var(--sage-tint);
+      color: var(--positive);
+    }
+
+    /* Day Inspector */
+    .inspector-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .inspector-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+    }
+    .inspector-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.875rem;
+    }
+
+    /* Hourly Chart */
+    .chart-wrap {
+      width: 100%;
+      min-height: 250px;
+      position: relative;
+    }
+    .hourly-strip {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    .hour-pill {
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+      padding: var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+      text-align: center;
+    }
+
+    /* SpaceX Tracker & Sky-Dome Visibility */
+    .spacex-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .launch-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .launch-item {
+      width: 100%;
+      text-align: left;
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      color: var(--on-surface);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .launch-item:hover {
+      background: var(--surface-container-high);
+    }
+    .launch-item.is-selected {
+      background: var(--primary-container);
+      border: var(--glass-border-strong);
+      box-shadow: var(--glow-primary);
+    }
+    .launch-item-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .launch-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
+      gap: var(--space-sm);
+    }
+    .sky-dome-box {
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Astronomy & Moon Split */
+    .astro-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.35fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .moon-hero {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+    }
+    .moon-dates-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      max-height: 460px;
+      overflow-y: auto;
+      padding-right: var(--space-xs);
+    }
+    .event-row {
+      background: var(--glass-bg-recessed);
+      border: var(--glass-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .event-row-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* Aviation & Source Footer */
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--overlay-scrim);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-dialog {
+      width: min(820px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--surface-container);
+      border: var(--glass-border-strong);
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--glass-shadow);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .code-preview {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: var(--on-surface-variant);
+      max-height: 280px;
+      overflow: auto;
+      white-space: pre;
+      margin: 0;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .location-bar,
+      .calendar-layout,
+      .spacex-layout,
+      .astro-layout {
+        grid-template-columns: 1fr;
+      }
+      .hourly-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+      .glass-panel {
+        padding: var(--space-md);
+      }
+      .clock-readout {
+        align-items: flex-start;
+        width: 100%;
+      }
+      .cal-weekdays { display: none; }
+      .cal-grid,
+      .cal-grid.is-weekly {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hourly-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .moon-dates-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cosmos-backdrop" aria-hidden="true"></div>
+
+  <div class="page-grid">
+    <!-- 1. Header & Live Clock -->
+    <header class="glass-panel site-header">
+      <div class="header-brand">
+        <h1 class="title display-title">JANET WEATHER v.11/24/2026</h1>
+        <div class="header-subtitle" id="header-location-line">
+          <span class="status-dot dot-sage" aria-hidden="true"></span>
+          <span>Phoenix Deer Valley Airport (KDVT) · ZIP 85027 · 33.6883° N, 112.0826° W · Elev 1,478 ft</span>
+        </div>
+      </div>
+      <div class="header-telemetry">
+        <div class="clock-readout" aria-live="polite">
+          <div class="clock-time" id="live-clock">11:01:58 PM</div>
+          <div class="clock-date" id="live-date">Tue, Nov 24, 2026 · Local Standard Time</div>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-open-export" onclick="openExportModal()">
+          <i data-lucide="code-2" width="18" height="18" aria-hidden="true"></i>
+          <span>Export GitHub Pages</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. Location Search & Presets -->
+    <section class="glass-panel" aria-label="Location selection">
+      <div class="location-bar">
+        <div class="search-group">
+          <label for="location-search" class="data-label">Search US City, State, or ZIP Code (Open-Meteo Geocoding Schema)</label>
+          <div class="search-row">
+            <input
+              type="text"
+              id="location-search"
+              class="input-field"
+              placeholder="e.g. Phoenix, AZ · 85027 · Flagstaff · Seattle, WA · 90210"
+              autocomplete="off"
+              oninput="handleSearchInput(this.value)"
+              onkeydown="handleSearchKeydown(event)"
+            >
+            <button type="button" class="btn btn-primary" id="btn-search-loc" onclick="executeLocationSearch()">
+              <i data-lucide="search" width="17" height="17" aria-hidden="true"></i>
+              <span>Resolve</span>
+            </button>
+          </div>
+          <div class="search-results" id="search-results" role="listbox" aria-label="Matching US locations"></div>
+          <div class="search-feedback" id="search-feedback">Active station: Phoenix Deer Valley Airport, AZ (KDVT / 85027)</div>
+        </div>
+
+        <div class="presets-group">
+          <span class="data-label">Arizona Quick-Select Presets</span>
+          <div class="preset-buttons">
+            <button type="button" class="btn btn-secondary is-active" id="preset-kdvt" onclick="selectPreset('kdvt')">
+              <span class="status-dot dot-cyan" aria-hidden="true"></span>
+              <span>Deer Valley Airport, AZ</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="preset-pleasant" onclick="selectPreset('lake_pleasant')">
+              <span class="status-dot dot-sage" aria-hidden="true"></span>
+              <span>Lake Pleasant, AZ</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="preset-crownking" onclick="selectPreset('crown_king')">
+              <span class="status-dot dot-amber" aria-hidden="true"></span>
+              <span>Crown King, AZ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Weather Engine KPI Cards -->
+    <section class="kpi-grid" aria-label="Current weather metrics">
+      <article class="glass-panel kpi-card">
+        <div class="kpi-header">
+          <span class="data-label">Temperature &amp; Sky</span>
+          <span class="chip chip-cyan" id="kpi-condition-chip">Clear Sky</span>
+        </div>
+        <div>
+          <div class="hero-num" id="kpi-temp">57°F</div>
+          <p class="muted-copy mono-val" id="kpi-temp-sub">Feels like 55°F · High 72°F / Low 48°F</p>
+        </div>
+        <div class="kpi-subgrid">
+          <div class="stat-pair">
+            <span class="data-label">Dew Point</span>
+            <span class="val" id="kpi-dewpoint">34°F</span>
+          </div>
+          <div class="stat-pair">
+            <span class="data-label">Visibility</span>
+            <span class="val" id="kpi-visibility">10.0 mi</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="glass-panel kpi-card">
+        <div class="kpi-header">
+          <span class="data-label">Precipitation (Rain vs. Snow)</span>
+          <span class="chip chip-sage" id="kpi-precip-chip">Dry Sky</span>
+        </div>
+        <div>
+          <div class="hero-num" id="kpi-precip-total">0.00 in</div>
+          <p class="muted-copy mono-val" id="kpi-precip-mm">0.0 mm total · 5% prob</p>
+        </div>
+        <div class="kpi-subgrid">
+          <div class="stat-pair">
+            <span class="data-label">Rain (Liquid)</span>
+            <span class="val" id="kpi-rain">0.00 in / 0.0 mm</span>
+          </div>
+          <div class="stat-pair">
+            <span class="data-label">Snow (Frozen)</span>
+            <span class="val" id="kpi-snow">0.00 in / 0.0 mm</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="glass-panel kpi-card">
+        <div class="kpi-header">
+          <span class="data-label">Humidity &amp; Wind</span>
+          <span class="chip chip-neutral" id="kpi-wind-dir-chip">NE 040°</span>
+        </div>
+        <div>
+          <div class="hero-num" id="kpi-wind">12 mph</div>
+          <p class="muted-copy mono-val" id="kpi-humidity-sub">40% Relative Humidity · Gusts 15 mph</p>
+        </div>
+        <div class="kpi-subgrid">
+          <div class="stat-pair">
+            <span class="data-label">Aviation Wind</span>
+            <span class="val" id="kpi-wind-kt">10 kt</span>
+          </div>
+          <div class="stat-pair">
+            <span class="data-label">Altimeter</span>
+            <span class="val" id="kpi-pressure">30.12 inHg</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="glass-panel kpi-card">
+        <div class="kpi-header">
+          <span class="data-label">Cloud Cover &amp; Twilight</span>
+          <span class="chip chip-sage" id="kpi-sky-quality-chip">Prime Stargazing</span>
+        </div>
+        <div>
+          <div class="hero-num" id="kpi-clouds">4%</div>
+          <p class="muted-copy mono-val" id="kpi-cloud-layers">Low 0% · Mid 0% · High 4%</p>
+        </div>
+        <div class="kpi-subgrid">
+          <div class="stat-pair">
+            <span class="data-label">Sunrise / Sunset</span>
+            <span class="val" id="kpi-sun-times">7:10 AM / 5:20 PM</span>
+          </div>
+          <div class="stat-pair">
+            <span class="data-label">Civil Twilight</span>
+            <span class="val" id="kpi-twilight-times">6:43 AM / 5:47 PM</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- 4. Interactive Calendar + Selected Day Inspector -->
+    <section class="calendar-layout" aria-label="Interactive weather and skywatching calendar">
+      <div class="glass-panel">
+        <div class="panel-toolbar">
+          <div>
+            <h2 class="title section-title" id="calendar-heading">November 2026 Outlook</h2>
+            <p class="muted-copy data-label" id="calendar-subheading">Weather, SpaceX Launches, Celestial Events &amp; Lunar Illumination</p>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" class="btn btn-secondary btn-compact is-active" id="btn-view-monthly" onclick="setCalendarView('monthly')">Monthly</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="btn-view-weekly" onclick="setCalendarView('weekly')">Weekly (7-Day)</button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="navigateCalendar(-1)" aria-label="Previous period">&lsaquo; Prev</button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="jumpToToday()">Today</button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="navigateCalendar(1)" aria-label="Next period">Next &rsaquo;</button>
+          </div>
+        </div>
+
+        <div class="cal-weekdays" aria-hidden="true">
+          <span class="data-label">Sun</span>
+          <span class="data-label">Mon</span>
+          <span class="data-label">Tue</span>
+          <span class="data-label">Wed</span>
+          <span class="data-label">Thu</span>
+          <span class="data-label">Fri</span>
+          <span class="data-label">Sat</span>
+        </div>
+
+        <div class="cal-grid" id="calendar-grid" role="grid" aria-label="Weather and skywatching calendar"></div>
+      </div>
+
+      <aside class="glass-panel inspector-card" aria-label="Selected day details">
+        <div>
+          <span class="data-label">Selected Date Brief</span>
+          <h2 class="title section-title" id="inspector-date-title">Tuesday, Nov 24, 2026</h2>
+          <p class="muted-copy mono-val" id="inspector-location-sub">Deer Valley Airport, AZ</p>
+        </div>
+
+        <div class="glass-well">
+          <div class="inspector-row">
+            <span class="data-label">Forecast High / Low</span>
+            <span class="mono-val" id="insp-temps">72°F / 48°F</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Condition &amp; Clouds</span>
+            <span class="mono-val" id="insp-condition">Clear Sky · 4%</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Rain / Snow Split</span>
+            <span class="mono-val" id="insp-precip">0.00 in rain · 0.00 in snow</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Wind &amp; Humidity</span>
+            <span class="mono-val" id="insp-wind-hum">12 mph · 40% RH</span>
+          </div>
+        </div>
+
+        <div class="inspector-section">
+          <span class="data-label">Solar &amp; Lunar Schedule (12-Hr)</span>
+          <div class="inspector-row">
+            <span class="muted-copy">Sunrise / Sunset</span>
+            <span class="mono-val" id="insp-sun">7:10 AM / 5:20 PM</span>
+          </div>
+          <div class="inspector-row">
+            <span class="muted-copy">Moon Phase</span>
+            <span class="mono-val" id="insp-moon">Full Supermoon · 99.6%</span>
+          </div>
+        </div>
+
+        <div class="inspector-section">
+          <span class="data-label">SpaceX Launches on Date</span>
+          <div id="insp-launches"></div>
+        </div>
+
+        <div class="inspector-section">
+          <span class="data-label">2026 Celestial Milestones</span>
+          <div id="insp-celestial"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- 5. 24-Hour Hourly Forecast (Strict 12-Hr AM/PM) -->
+    <section class="glass-panel" aria-label="24-hour forecast curve">
+      <div class="panel-toolbar">
+        <div>
+          <h2 class="title section-title">24-Hour Atmospheric &amp; Cloud Forecast</h2>
+          <p class="muted-copy data-label" id="hourly-subtitle">Strict 12-Hour Standard Time · Temperature (°F), Cloud Cover (%) &amp; Precip Probability (%)</p>
+        </div>
+        <div class="toolbar-actions">
+          <span class="chip chip-cyan">Temp (°F)</span>
+          <span class="chip chip-neutral">Cloud Cover (%)</span>
+          <span class="chip chip-sage">Precip Prob (%)</span>
+        </div>
+      </div>
+
+      <div class="glass-well chart-wrap" id="hourly-chart-container" style="min-height: 250px;"></div>
+      <div class="hourly-strip" id="hourly-strip"></div>
+    </section>
+
+    <!-- 6. SpaceX Launch Tracker & Night Sky Visibility Engine -->
+    <section class="spacex-layout" aria-label="SpaceX launch tracker and night sky visibility">
+      <div class="glass-panel">
+        <div class="panel-toolbar">
+          <div>
+            <h2 class="title section-title">SpaceX Launch Tracker</h2>
+            <p class="muted-copy data-label">Upcoming Manifest · Live T-0 Countdowns &amp; Regional Visibility</p>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" class="btn btn-secondary btn-compact is-active" id="filter-launch-all" onclick="setLaunchFilter('all')">All</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="filter-launch-visible" onclick="setLaunchFilter('visible')">Visible Only</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="filter-launch-vsfb" onclick="setLaunchFilter('vsfb')">Vandenberg</button>
+          </div>
+        </div>
+        <div class="launch-list" id="launch-list"></div>
+      </div>
+
+      <div class="glass-panel">
+        <div class="panel-toolbar">
+          <div>
+            <h2 class="title section-title">Night Sky Visibility Engine</h2>
+            <p class="muted-copy data-label" id="vis-engine-loc">Computed for Deer Valley Airport, AZ</p>
+          </div>
+          <span class="chip chip-cyan" id="vis-score-chip">Visibility 92%</span>
+        </div>
+
+        <div class="glass-well sky-dome-box" id="sky-dome-container" style="min-height: 245px;"></div>
+
+        <div style="margin-top: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
+          <div class="inspector-row">
+            <span class="data-label">Selected Mission</span>
+            <span class="mono-val" id="vis-mission-name">--</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Plume Verdict</span>
+            <span class="mono-val" id="vis-verdict-text">--</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Viewing Bearing &amp; Peak Alt</span>
+            <span class="mono-val" id="vis-bearing-alt">--</span>
+          </div>
+          <div class="inspector-row">
+            <span class="data-label">Solar Twilight &amp; Cloud Cover</span>
+            <span class="mono-val" id="vis-twilight-cloud">--</span>
+          </div>
+          <p class="muted-copy" id="vis-explanation" style="font-size: 0.875rem; padding-top: var(--space-xs); border-top: var(--hairline);"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Moon Phase Stargazing Tracker & 2026 Celestial Events -->
+    <section class="astro-layout" aria-label="Moon phase and 2026 astronomical events">
+      <div class="glass-panel">
+        <div class="panel-toolbar">
+          <div>
+            <h2 class="title section-title">Moon Phase &amp; Dark-Sky Tracker</h2>
+            <p class="muted-copy data-label">Real-Time Lunar Synodic Cycle</p>
+          </div>
+          <span class="chip chip-amber" id="moon-badge">Supermoon</span>
+        </div>
+
+        <div class="moon-hero">
+          <div id="moon-svg-wrap" style="flex-shrink: 0;"></div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-xs); flex: 1;">
+            <div class="hero-num" id="moon-illum-pct">99.6%</div>
+            <div class="subhead-title" id="moon-phase-name">Full Moon</div>
+            <p class="muted-copy mono-val" id="moon-age-line">Lunar Age: 15.3 days · Brightness High</p>
+            <p class="muted-copy mono-val" id="moon-rise-set">Moonrise 5:34 PM · Moonset 7:22 AM</p>
+          </div>
+        </div>
+
+        <div class="moon-dates-grid" style="margin-top: var(--space-md);">
+          <div class="glass-well">
+            <span class="data-label">Optimal Dark-Sky (New Moon)</span>
+            <div class="mono-val" id="next-new-moon" style="margin-top: 4px; color: var(--positive);">Dec 8, 2026 · 7:52 PM</div>
+          </div>
+          <div class="glass-well">
+            <span class="data-label">Next Bright Full Moon</span>
+            <div class="mono-val" id="next-full-moon" style="margin-top: 4px; color: var(--warning);">Dec 24, 2026 · 6:28 PM</div>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md);">
+          <span class="data-label">Upcoming Dark-Sky Stargazing Nights (&le;15% Moon)</span>
+          <div id="dark-sky-list" style="display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-sm);"></div>
+        </div>
+      </div>
+
+      <div class="glass-panel">
+        <div class="panel-toolbar">
+          <div>
+            <h2 class="title section-title">2026 Celestial Events &amp; Space Calendar</h2>
+            <p class="muted-copy data-label">NASA Watch the Skies &amp; The Planetary Society 2026</p>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" class="btn btn-secondary btn-compact is-active" id="astro-filter-all" onclick="setAstroFilter('all')">All</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="astro-filter-eclipse" onclick="setAstroFilter('eclipse')">Eclipses</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="astro-filter-meteor" onclick="setAstroFilter('meteor')">Meteors</button>
+            <button type="button" class="btn btn-secondary btn-compact" id="astro-filter-mission" onclick="setAstroFilter('mission')">Missions</button>
+          </div>
+        </div>
+        <div class="events-list" id="celestial-events-list"></div>
+      </div>
+    </section>
+
+    <!-- 8. KDVT Aviation Reference & Sources -->
+    <footer class="glass-panel" aria-label="Station operational brief and sources">
+      <div class="footer-grid">
+        <div>
+          <span class="data-label">Station Brief · KDVT Deer Valley Airport</span>
+          <p class="muted-copy" style="margin-top: var(--space-xs); font-size: 0.875rem;">
+            Runways 7R/25L (8,196 &times; 100 ft asphalt, 3.00&deg; PAPI) &amp; 7L/25R (4,500 &times; 75 ft training runway).
+            Tower operates 6:00 AM &ndash; 12:00 AM (118.4 / 120.2 MHz); Ground 121.8 MHz; ATIS/ASOS 126.5 MHz; TPA 2,500 ft MSL piston / 3,000 ft MSL turbine.
+          </p>
+        </div>
+        <div>
+          <span class="data-label">Data Grounding &amp; API Schemas</span>
+          <p class="muted-copy" style="margin-top: var(--space-xs); font-size: 0.875rem;">
+            Built with FAA AirNav KDVT station records, Open-Meteo Weather &amp; Geocoding schemas (api.open-meteo.com, geocoding-api.open-meteo.com),
+            TheSpaceDevs Launch Library 2 orbital parameters (ll.thespacedevs.com), NASA Watch the Skies 2026, and The Planetary Society 2026 Space Events Calendar.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- GitHub Pages Export Modal -->
+  <div class="modal-backdrop" id="export-modal" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+    <div class="modal-dialog">
+      <div class="panel-toolbar" style="margin-bottom: 0;">
+        <div>
+          <span class="data-label">Single-File Static Deployment</span>
+          <h2 class="title section-title" id="export-modal-title">Export for GitHub Pages (index.html)</h2>
+        </div>
+        <button type="button" class="btn btn-secondary btn-compact" onclick="closeExportModal()" aria-label="Close export modal">Close</button>
+      </div>
+
+      <p class="muted-copy" style="font-size: 0.9rem;">
+        JANET WEATHER is completely self-contained in a single HTML file. Save as <strong>index.html</strong> in the root of any GitHub repository and enable Pages under Settings &rarr; Pages &rarr; Deploy from branch.
+      </p>
+
+      <pre class="code-preview" id="export-code-preview"></pre>
+
+      <div class="toolbar-actions" style="justify-content: space-between;">
+        <span class="search-feedback" id="export-status-msg">Ready to copy or download standalone index.html</span>
+        <div class="toolbar-actions">
+          <button type="button" class="btn btn-secondary" onclick="copyExportHtml()">
+            <i data-lucide="copy" width="16" height="16" aria-hidden="true"></i>
+            <span>Copy HTML Code</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="downloadExportHtml()">
+            <i data-lucide="download" width="16" height="16" aria-hidden="true"></i>
+            <span>Download index.html</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    // =========================================================================
+    // JANET WEATHER v.11/24/2026 — Core Meteorological & Astronomical Engine
+    // =========================================================================
+
+    const PRESET_LOCATIONS = {
+      kdvt: {
+        id: `kdvt`,
+        name: `Phoenix Deer Valley Airport (KDVT)`,
+        shortName: `Deer Valley Airport, AZ`,
+        admin1: `Arizona`,
+        stateCode: `AZ`,
+        zip: `85027`,
+        lat: 33.688306,
+        lon: -112.082556,
+        elevFt: 1478,
+        tzOffset: -7,
+        tzAbbr: `MST`,
+        climateZone: `sonoran`,
+        baseMetar: {
+          tempF: 57,
+          dewF: 34,
+          windSpeedMph: 12,
+          windKt: 10,
+          windDirDeg: 40,
+          windDirCompass: `NE`,
+          gustMph: 15,
+          pressureInHg: 30.12,
+          clouds: 4,
+          cloudLow: 0,
+          cloudMid: 0,
+          cloudHigh: 4,
+          visMi: 10.0,
+          rainIn: 0.0,
+          snowIn: 0.0,
+          precipProb: 5,
+          condition: `Clear Sky`
+        }
+      },
+      lake_pleasant: {
+        id: `lake_pleasant`,
+        name: `Lake Pleasant Regional Park`,
+        shortName: `Lake Pleasant, AZ`,
+        admin1: `Arizona`,
+        stateCode: `AZ`,
+        zip: `85342`,
+        lat: 33.8500,
+        lon: -112.2700,
+        elevFt: 1702,
+        tzOffset: -7,
+        tzAbbr: `MST`,
+        climateZone: `sonoran`
+      },
+      crown_king: {
+        id: `crown_king`,
+        name: `Crown King (Bradshaw Mtns)`,
+        shortName: `Crown King, AZ`,
+        admin1: `Arizona`,
+        stateCode: `AZ`,
+        zip: `86343`,
+        lat: 34.2056,
+        lon: -112.3386,
+        elevFt: 5771,
+        tzOffset: -7,
+        tzAbbr: `MST`,
+        climateZone: `mountain`
+      }
+    };
+
+    const US_GEOCODING_DIRECTORY = [
+      PRESET_LOCATIONS.kdvt,
+      PRESET_LOCATIONS.lake_pleasant,
+      PRESET_LOCATIONS.crown_king,
+      { id: `phx`, name: `Phoenix, AZ`, shortName: `Phoenix, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `85004`, lat: 33.4484, lon: -112.0740, elevFt: 1086, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      { id: `sdl`, name: `Scottsdale, AZ`, shortName: `Scottsdale, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `85251`, lat: 33.4942, lon: -111.9261, elevFt: 1257, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      { id: `peoria`, name: `Peoria, AZ`, shortName: `Peoria, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `85383`, lat: 33.5806, lon: -112.2374, elevFt: 1142, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      { id: `flg`, name: `Flagstaff, AZ`, shortName: `Flagstaff, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `86001`, lat: 35.1983, lon: -111.6513, elevFt: 6909, tzOffset: -7, tzAbbr: `MST`, climateZone: `mountain` },
+      { id: `prc`, name: `Prescott, AZ`, shortName: `Prescott, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `86301`, lat: 34.5400, lon: -112.4685, elevFt: 5367, tzOffset: -7, tzAbbr: `MST`, climateZone: `mountain` },
+      { id: `tus`, name: `Tucson, AZ`, shortName: `Tucson, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `85701`, lat: 32.2226, lon: -110.9747, elevFt: 2389, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      { id: `sedona`, name: `Sedona, AZ`, shortName: `Sedona, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `86336`, lat: 34.8697, lon: -111.7610, elevFt: 4350, tzOffset: -7, tzAbbr: `MST`, climateZone: `high_desert` },
+      { id: `yuma`, name: `Yuma, AZ`, shortName: `Yuma, AZ`, admin1: `Arizona`, stateCode: `AZ`, zip: `85364`, lat: 32.6927, lon: -114.6277, elevFt: 141, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      { id: `lax`, name: `Los Angeles, CA`, shortName: `Los Angeles, CA`, admin1: `California`, stateCode: `CA`, zip: `90012`, lat: 34.0522, lon: -118.2437, elevFt: 285, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_west` },
+      { id: `bh`, name: `Beverly Hills, CA`, shortName: `Beverly Hills, CA`, admin1: `California`, stateCode: `CA`, zip: `90210`, lat: 34.0736, lon: -118.4004, elevFt: 259, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_west` },
+      { id: `san`, name: `San Diego, CA`, shortName: `San Diego, CA`, admin1: `California`, stateCode: `CA`, zip: `92101`, lat: 32.7157, lon: -117.1611, elevFt: 62, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_west` },
+      { id: `sfo`, name: `San Francisco, CA`, shortName: `San Francisco, CA`, admin1: `California`, stateCode: `CA`, zip: `94102`, lat: 37.7749, lon: -122.4194, elevFt: 52, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_nw` },
+      { id: `las`, name: `Las Vegas, NV`, shortName: `Las Vegas, NV`, admin1: `Nevada`, stateCode: `NV`, zip: `89101`, lat: 36.1699, lon: -115.1398, elevFt: 2001, tzOffset: -8, tzAbbr: `PST`, climateZone: `high_desert` },
+      { id: `slc`, name: `Salt Lake City, UT`, shortName: `Salt Lake City, UT`, admin1: `Utah`, stateCode: `UT`, zip: `84101`, lat: 40.7608, lon: -111.8910, elevFt: 4226, tzOffset: -7, tzAbbr: `MST`, climateZone: `mountain` },
+      { id: `den`, name: `Denver, CO`, shortName: `Denver, CO`, admin1: `Colorado`, stateCode: `CO`, zip: `80202`, lat: 39.7392, lon: -104.9903, elevFt: 5280, tzOffset: -7, tzAbbr: `MST`, climateZone: `mountain` },
+      { id: `abq`, name: `Albuquerque, NM`, shortName: `Albuquerque, NM`, admin1: `New Mexico`, stateCode: `NM`, zip: `87101`, lat: 35.0844, lon: -106.6504, elevFt: 5312, tzOffset: -7, tzAbbr: `MST`, climateZone: `high_desert` },
+      { id: `sea`, name: `Seattle, WA`, shortName: `Seattle, WA`, admin1: `Washington`, stateCode: `WA`, zip: `98101`, lat: 47.6062, lon: -122.3321, elevFt: 175, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_nw` },
+      { id: `pdx`, name: `Portland, OR`, shortName: `Portland, OR`, admin1: `Oregon`, stateCode: `OR`, zip: `97201`, lat: 45.5152, lon: -122.6784, elevFt: 50, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_nw` },
+      { id: `aus`, name: `Austin, TX`, shortName: `Austin, TX`, admin1: `Texas`, stateCode: `TX`, zip: `78701`, lat: 30.2672, lon: -97.7431, elevFt: 489, tzOffset: -6, tzAbbr: `CST`, climateZone: `humid_south` },
+      { id: `hou`, name: `Houston, TX`, shortName: `Houston, TX`, admin1: `Texas`, stateCode: `TX`, zip: `77002`, lat: 29.7604, lon: -95.3698, elevFt: 50, tzOffset: -6, tzAbbr: `CST`, climateZone: `humid_south` },
+      { id: `dal`, name: `Dallas, TX`, shortName: `Dallas, TX`, admin1: `Texas`, stateCode: `TX`, zip: `75201`, lat: 32.7767, lon: -96.7970, elevFt: 430, tzOffset: -6, tzAbbr: `CST`, climateZone: `humid_south` },
+      { id: `ord`, name: `Chicago, IL`, shortName: `Chicago, IL`, admin1: `Illinois`, stateCode: `IL`, zip: `60601`, lat: 41.8781, lon: -87.6298, elevFt: 594, tzOffset: -6, tzAbbr: `CST`, climateZone: `northern_continental` },
+      { id: `msp`, name: `Minneapolis, MN`, shortName: `Minneapolis, MN`, admin1: `Minnesota`, stateCode: `MN`, zip: `55401`, lat: 44.9778, lon: -93.2650, elevFt: 830, tzOffset: -6, tzAbbr: `CST`, climateZone: `northern_continental` },
+      { id: `nyc`, name: `New York, NY`, shortName: `New York, NY`, admin1: `New York`, stateCode: `NY`, zip: `10001`, lat: 40.7128, lon: -74.0060, elevFt: 33, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      { id: `bos`, name: `Boston, MA`, shortName: `Boston, MA`, admin1: `Massachusetts`, stateCode: `MA`, zip: `02108`, lat: 42.3601, lon: -71.0589, elevFt: 141, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      { id: `iad`, name: `Washington, DC`, shortName: `Washington, DC`, admin1: `District of Columbia`, stateCode: `DC`, zip: `20001`, lat: 38.9072, lon: -77.0369, elevFt: 25, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      { id: `atl`, name: `Atlanta, GA`, shortName: `Atlanta, GA`, admin1: `Georgia`, stateCode: `GA`, zip: `30303`, lat: 33.7490, lon: -84.3880, elevFt: 1050, tzOffset: -5, tzAbbr: `EST`, climateZone: `humid_south` },
+      { id: `mia`, name: `Miami, FL`, shortName: `Miami, FL`, admin1: `Florida`, stateCode: `FL`, zip: `33101`, lat: 25.7617, lon: -80.1918, elevFt: 6, tzOffset: -5, tzAbbr: `EST`, climateZone: `tropical_south` },
+      { id: `mco`, name: `Orlando, FL`, shortName: `Orlando, FL`, admin1: `Florida`, stateCode: `FL`, zip: `32801`, lat: 28.5383, lon: -81.3792, elevFt: 82, tzOffset: -5, tzAbbr: `EST`, climateZone: `tropical_south` },
+      { id: `anc`, name: `Anchorage, AK`, shortName: `Anchorage, AK`, admin1: `Alaska`, stateCode: `AK`, zip: `99501`, lat: 61.2181, lon: -149.9003, elevFt: 102, tzOffset: -9, tzAbbr: `AKST`, climateZone: `subarctic` },
+      { id: `hnl`, name: `Honolulu, HI`, shortName: `Honolulu, HI`, admin1: `Hawaii`, stateCode: `HI`, zip: `96813`, lat: 21.3069, lon: -157.8583, elevFt: 18, tzOffset: -10, tzAbbr: `HST`, climateZone: `tropical_south` }
+    ];
+
+    const US_ZIP_PREFIX_REGIONS = {
+      '0': { region: `New England / Northeast`, stateCode: `MA`, lat: 42.36, lon: -71.06, elevFt: 180, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      '1': { region: `Mid-Atlantic`, stateCode: `NY`, lat: 40.75, lon: -74.00, elevFt: 120, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      '2': { region: `Capital / Carolinas`, stateCode: `VA`, lat: 37.54, lon: -77.43, elevFt: 240, tzOffset: -5, tzAbbr: `EST`, climateZone: `temperate_east` },
+      '3': { region: `Southeast Corridor`, stateCode: `FL`, lat: 29.65, lon: -82.32, elevFt: 110, tzOffset: -5, tzAbbr: `EST`, climateZone: `humid_south` },
+      '4': { region: `Great Lakes / Ohio Valley`, stateCode: `OH`, lat: 40.44, lon: -83.00, elevFt: 820, tzOffset: -5, tzAbbr: `EST`, climateZone: `northern_continental` },
+      '5': { region: `Upper Midwest`, stateCode: `MN`, lat: 44.50, lon: -93.10, elevFt: 910, tzOffset: -6, tzAbbr: `CST`, climateZone: `northern_continental` },
+      '6': { region: `Central Plains`, stateCode: `IL`, lat: 39.80, lon: -89.65, elevFt: 610, tzOffset: -6, tzAbbr: `CST`, climateZone: `northern_continental` },
+      '7': { region: `South Central`, stateCode: `TX`, lat: 31.55, lon: -97.14, elevFt: 520, tzOffset: -6, tzAbbr: `CST`, climateZone: `humid_south` },
+      '8': { region: `Mountain / Southwest`, stateCode: `AZ`, lat: 34.10, lon: -111.95, elevFt: 2450, tzOffset: -7, tzAbbr: `MST`, climateZone: `sonoran` },
+      '9': { region: `Pacific Coast`, stateCode: `CA`, lat: 35.37, lon: -119.02, elevFt: 380, tzOffset: -8, tzAbbr: `PST`, climateZone: `coastal_west` }
+    };
+
+    const CLIMATE_PROFILES = {
+      sonoran: { summerHigh: 105, winterHigh: 69, diurnalSwing: 23, baseRh: 34, cloudFreq: 0.14, rainScale: 0.25 },
+      high_desert: { summerHigh: 94, winterHigh: 52, diurnalSwing: 26, baseRh: 38, cloudFreq: 0.20, rainScale: 0.35 },
+      mountain: { summerHigh: 81, winterHigh: 44, diurnalSwing: 24, baseRh: 48, cloudFreq: 0.30, rainScale: 0.70 },
+      coastal_west: { summerHigh: 78, winterHigh: 66, diurnalSwing: 14, baseRh: 64, cloudFreq: 0.32, rainScale: 0.45 },
+      coastal_nw: { summerHigh: 74, winterHigh: 47, diurnalSwing: 13, baseRh: 78, cloudFreq: 0.64, rainScale: 1.25 },
+      northern_continental: { summerHigh: 82, winterHigh: 30, diurnalSwing: 17, baseRh: 68, cloudFreq: 0.50, rainScale: 0.90 },
+      temperate_east: { summerHigh: 84, winterHigh: 41, diurnalSwing: 16, baseRh: 65, cloudFreq: 0.46, rainScale: 0.95 },
+      humid_south: { summerHigh: 93, winterHigh: 61, diurnalSwing: 19, baseRh: 70, cloudFreq: 0.38, rainScale: 1.05 },
+      tropical_south: { summerHigh: 90, winterHigh: 76, diurnalSwing: 13, baseRh: 76, cloudFreq: 0.40, rainScale: 1.30 },
+      subarctic: { summerHigh: 65, winterHigh: 22, diurnalSwing: 14, baseRh: 74, cloudFreq: 0.60, rainScale: 0.85 }
+    };
+
+    const CELESTIAL_EVENTS_2026 = [
+      { id: `quadrantids`, date: `2026-01-03`, time12: `4:00 AM`, title: `Quadrantid Meteor Shower Peak`, category: `meteor`, summary: `Northern Hemisphere peak; bright almost-full Moon limits faint meteors.` },
+      { id: `jan-supermoon`, date: `2026-01-03`, time12: `5:03 AM`, title: `January Supermoon`, category: `planet`, summary: `First full supermoon of 2026 near lunar perigee.` },
+      { id: `jupiter-opp`, date: `2026-01-10`, time12: `8:30 PM`, title: `Jupiter at Opposition`, category: `planet`, summary: `Jupiter reaches maximum brightness and all-night visibility for 2026.` },
+      { id: `annular-solar`, date: `2026-02-17`, time12: `5:12 AM`, title: `Annular Solar Eclipse`, category: `eclipse`, summary: `Ring-of-fire eclipse track crosses Antarctica and the southern Indian Ocean.` },
+      { id: `artemis-2`, date: `2026-02-20`, time12: `9:00 AM`, title: `Artemis II Lunar Flyby Window`, category: `mission`, summary: `NASA crewed Orion mission sends four astronauts around the Moon and back.` },
+      { id: `planet-parade`, date: `2026-02-28`, time12: `6:45 PM`, title: `Six-Planet Evening Alignment`, category: `planet`, summary: `Mercury, Venus, Neptune, Saturn, Uranus, and Jupiter trace a post-sunset arc.` },
+      { id: `total-lunar`, date: `2026-03-03`, time12: `4:33 AM`, title: `Total Lunar Eclipse (Blood Moon)`, category: `eclipse`, summary: `Fully visible across western North America before sunrise; prime Arizona viewing.` },
+      { id: `venus-saturn`, date: `2026-03-08`, time12: `7:15 PM`, title: `Venus–Saturn Conjunction`, category: `planet`, summary: `Planets appear roughly 1 degree apart in the western twilight sky.` },
+      { id: `march-equinox`, date: `2026-03-20`, time12: `7:46 AM`, title: `March Equinox`, category: `planet`, summary: `Astronomical spring begins in the Northern Hemisphere.` },
+      { id: `mercury-elong`, date: `2026-04-04`, time12: `7:30 PM`, title: `Mercury Greatest Elongation`, category: `planet`, summary: `Best evening separation from the Sun to spot Mercury in 2026.` },
+      { id: `smile-launch`, date: `2026-04-08`, time12: `10:00 AM`, title: `ESA / CAS SMILE Launch Window`, category: `mission`, summary: `Solar wind Magnetosphere Ionosphere Link Explorer earliest launch window.` },
+      { id: `lyrids`, date: `2026-04-22`, time12: `3:30 AM`, title: `Lyrid Meteor Shower Peak`, category: `meteor`, summary: `Crescent Moon sets early, offering clear dark-sky meteor viewing.` },
+      { id: `vesta-opp`, date: `2026-05-02`, time12: `11:00 PM`, title: `Asteroid Vesta at Opposition`, category: `planet`, summary: `Brightest appearance of 2026; easy target in binoculars under dark skies.` },
+      { id: `eta-aquariids`, date: `2026-05-06`, time12: `4:15 AM`, title: `Eta Aquariid Meteor Shower Peak`, category: `meteor`, summary: `Halley's Comet debris stream; bright Moon softens fainter meteors.` },
+      { id: `psyche-mars`, date: `2026-05-18`, time12: `1:20 PM`, title: `NASA Psyche Mars Gravity Assist`, category: `mission`, summary: `Psyche flies within 2,700 miles of Mars en route to asteroid 16 Psyche.` },
+      { id: `blue-moon`, date: `2026-05-31`, time12: `1:45 AM`, title: `Full Blue Moon`, category: `planet`, summary: `Second full moon of May, making 13 full moons in calendar year 2026.` },
+      { id: `venus-jupiter`, date: `2026-06-09`, time12: `8:20 PM`, title: `Venus–Jupiter Conjunction`, category: `planet`, summary: `The two brightest planets shine just over 1 degree apart after dusk.` },
+      { id: `june-solstice`, date: `2026-06-21`, time12: `1:24 AM`, title: `June Solstice`, category: `planet`, summary: `Longest day of the year in the Northern Hemisphere.` },
+      { id: `asteroid-day`, date: `2026-06-30`, time12: `12:00 PM`, title: `UN Asteroid Day`, category: `mission`, summary: `Annual planetary defense awareness milestone marking the Tunguska event.` },
+      { id: `hayabusa2`, date: `2026-07-25`, time12: `6:00 PM`, title: `Hayabusa2 Asteroid Torifune Flyby`, category: `mission`, summary: `JAXA extended mission encounters near-Earth asteroid 98943 Torifune.` },
+      { id: `delta-aquariids`, date: `2026-07-31`, time12: `2:45 AM`, title: `Southern Delta Aquariids Peak`, category: `meteor`, summary: `Coincides with Alpha Capricornids; bright Moon reduces fainter streaks.` },
+      { id: `total-solar`, date: `2026-08-12`, time12: `10:47 AM`, title: `Total Solar Eclipse (2m 18s)`, category: `eclipse`, summary: `Path of totality sweeps across Greenland, Iceland, and northern Spain.` },
+      { id: `perseids`, date: `2026-08-13`, time12: `2:00 AM`, title: `Perseid Meteor Shower Peak (New Moon)`, category: `meteor`, summary: `Premier dark-sky meteor display peaking right alongside a New Moon.` },
+      { id: `partial-lunar`, date: `2026-08-27`, time12: `9:14 PM`, title: `Partial Lunar Eclipse`, category: `eclipse`, summary: `Deep partial lunar eclipse visible across North and South America.` },
+      { id: `sept-equinox`, date: `2026-09-22`, time12: `5:05 PM`, title: `September Equinox`, category: `planet`, summary: `Astronomical autumn begins in the Northern Hemisphere.` },
+      { id: `neptune-opp`, date: `2026-09-25`, time12: `11:30 PM`, title: `Neptune at Opposition`, category: `planet`, summary: `Best telescope viewing window of 2026 for the outermost ice giant.` },
+      { id: `saturn-opp`, date: `2026-10-04`, time12: `10:15 PM`, title: `Saturn at Opposition`, category: `planet`, summary: `Saturn reaches peak annual brightness; opens World Space Week (Oct 4–10).` },
+      { id: `orionids`, date: `2026-10-21`, time12: `3:15 AM`, title: `Orionid Meteor Shower Peak`, category: `meteor`, summary: `Fast meteors visible across both hemispheres after midnight.` },
+      { id: `taurids`, date: `2026-11-05`, time12: `1:00 AM`, title: `Taurid Meteor Shower Peak`, category: `meteor`, summary: `Known for bright, slow fireballs across late-autumn skies.` },
+      { id: `sagan-day`, date: `2026-11-09`, time12: `7:00 PM`, title: `Carl Sagan Day`, category: `mission`, summary: `Annual celebration of Carl Sagan's birth and planetary exploration.` },
+      { id: `voyager-1ld`, date: `2026-11-15`, time12: `12:00 PM`, title: `Voyager 1 Reaches One Light-Day`, category: `mission`, summary: `First human spacecraft to reach 16.1 billion miles (24 light-hours) from Earth.` },
+      { id: `leonids`, date: `2026-11-17`, time12: `3:45 AM`, title: `Leonid Meteor Shower Peak`, category: `meteor`, summary: `Moon sets before peak pre-dawn hours, favoring fast Leonid streaks.` },
+      { id: `nov-supermoon`, date: `2026-11-24`, time12: `7:53 AM`, title: `November Supermoon`, category: `planet`, summary: `Full Moon near perigee illuminates tonight's sky up to 99.6%.` },
+      { id: `uranus-opp`, date: `2026-11-25`, time12: `9:40 PM`, title: `Uranus at Opposition`, category: `planet`, summary: `Uranus reaches peak 2026 brightness; visible in binoculars under dark skies.` },
+      { id: `bepicolombo`, date: `2026-11-28`, time12: `2:15 PM`, title: `BepiColombo Mercury Orbit Insertion`, category: `mission`, summary: `Joint ESA/JAXA spacecraft enters orbit around Mercury and separates MPO & Mio.` },
+      { id: `europa-clipper`, date: `2026-12-03`, time12: `11:10 AM`, title: `Europa Clipper Earth Flyby`, category: `mission`, summary: `Passes within 2,000 miles of Earth on final trajectory toward Europa (2030).` },
+      { id: `geminids`, date: `2026-12-14`, time12: `2:15 AM`, title: `Geminid Meteor Shower Peak`, category: `meteor`, summary: `Rich display of bright, greenish meteors with crescent Moon setting early.` },
+      { id: `dec-solstice`, date: `2026-12-21`, time12: `1:50 PM`, title: `December Solstice`, category: `planet`, summary: `Winter solstice in the Northern Hemisphere; longest night for stargazing.` },
+      { id: `ursids`, date: `2026-12-22`, time12: `3:30 AM`, title: `Ursid Meteor Shower Peak`, category: `meteor`, summary: `Northern Hemisphere shower near Polaris, tempered by bright moonlight.` },
+      { id: `xmas-supermoon`, date: `2026-12-24`, time12: `6:28 PM`, title: `Christmas Eve Supermoon`, category: `planet`, summary: `Year-end full supermoon illuminates the winter horizon at sunset.` }
+    ];
+
+    const LAUNCH_SITES = {
+      vsfb: {
+        id: `vsfb`,
+        name: `Vandenberg SFB, CA (SLC-4E)`,
+        short: `Vandenberg SLC-4E`,
+        lat: 34.6321,
+        lon: -120.6108,
+        downrangeAzimuth: 172,
+        plumeAltKm: 135
+      },
+      ccsfs: {
+        id: `ccsfs`,
+        name: `Cape Canaveral SFS, FL (SLC-40)`,
+        short: `Cape Canaveral SLC-40`,
+        lat: 28.5619,
+        lon: -80.5774,
+        downrangeAzimuth: 72,
+        plumeAltKm: 125
+      },
+      ksc: {
+        id: `ksc`,
+        name: `Kennedy Space Center, FL (LC-39A)`,
+        short: `KSC Pad LC-39A`,
+        lat: 28.6083,
+        lon: -80.6041,
+        downrangeAzimuth: 68,
+        plumeAltKm: 140
+      },
+      starbase: {
+        id: `starbase`,
+        name: `Starbase, TX (Orbital Launch Pad)`,
+        short: `Starbase Boca Chica`,
+        lat: 25.9972,
+        lon: -97.1544,
+        downrangeAzimuth: 96,
+        plumeAltKm: 165
+      }
+    };
+
+    // App state (initialized synchronously so early clicks never observe null state)
+    const bootNow = new Date();
+    const state = {
+      location: PRESET_LOCATIONS.kdvt,
+      calendarView: `monthly`,
+      viewYear: bootNow.getFullYear(),
+      viewMonth: bootNow.getMonth(),
+      weekAnchorDate: new Date(bootNow.getFullYear(), bootNow.getMonth(), bootNow.getDate(), 12, 0, 0),
+      selectedDateStr: formatDateKey(bootNow),
+      selectedLaunchId: null,
+      launchFilter: `all`,
+      astroFilter: `all`,
+      recentSearches: []
+    };
+
+    let dynamicLaunches = buildDynamicLaunchManifest(bootNow);
+
+    // =========================================================================
+    // Strict 12-Hour Standard Time (AM/PM) Helpers
+    // =========================================================================
+    function formatTime12h(dateObj, withSeconds) {
+      let hours = dateObj.getHours();
+      const mins = String(dateObj.getMinutes()).padStart(2, `0`);
+      const secs = String(dateObj.getSeconds()).padStart(2, `0`);
+      const period = hours >= 12 ? `PM` : `AM`;
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      if (withSeconds) {
+        return `${hours}:${mins}:${secs} ${period}`;
+      }
+      return `${hours}:${mins} ${period}`;
+    }
+
+    function formatMinutes12h(totalMins) {
+      let mins = Math.round(totalMins);
+      while (mins < 0) mins += 1440;
+      mins = mins % 1440;
+      const h24 = Math.floor(mins / 60);
+      const m = String(mins % 60).padStart(2, `0`);
+      const period = h24 >= 12 ? `PM` : `AM`;
+      let h12 = h24 % 12;
+      if (h12 === 0) h12 = 12;
+      return `${h12}:${m} ${period}`;
+    }
+
+    function formatHourOnly12h(hour24) {
+      const h = ((hour24 % 24) + 24) % 24;
+      const period = h >= 12 ? `PM` : `AM`;
+      let h12 = h % 12;
+      if (h12 === 0) h12 = 12;
+      return `${h12} ${period}`;
+    }
+
+    function formatDateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, `0`);
+      const day = String(d.getDate()).padStart(2, `0`);
+      return `${y}-${m}-${day}`;
+    }
+
+    function parseDateKey(str) {
+      if (!str || typeof str !== `string` || !str.includes(`-`)) {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      }
+      const parts = str.split(`-`).map(Number);
+      if (parts.length < 3 || parts.some(Number.isNaN)) {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      }
+      return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+    }
+
+    function formatFriendlyDate(d, includeWeekday) {
+      const opts = includeWeekday
+        ? { weekday: `long`, month: `short`, day: `numeric`, year: `numeric` }
+        : { month: `short`, day: `numeric`, year: `numeric` };
+      return d.toLocaleDateString(`en-US`, opts);
+    }
+
+    function formatShortDate(d) {
+      return d.toLocaleDateString(`en-US`, { month: `short`, day: `numeric` });
+    }
+
+    // =========================================================================
+    // Astronomical & Solar Algorithms
+    // =========================================================================
+    function getDayOfYear(dateObj) {
+      const start = new Date(dateObj.getFullYear(), 0, 0);
+      const diff = dateObj - start;
+      return Math.floor(diff / 86400000);
+    }
+
+    function computeSolarSchedule(dateObj, lat, lon, tzOffset) {
+      const doy = getDayOfYear(dateObj);
+      const rad = Math.PI / 180;
+      const deg = 180 / Math.PI;
+
+      const gamma = (2 * Math.PI / 365) * (doy - 1);
+      const eqTime = 229.18 * (
+        0.000075 +
+        0.001868 * Math.cos(gamma) -
+        0.032077 * Math.sin(gamma) -
+        0.014615 * Math.cos(2 * gamma) -
+        0.040849 * Math.sin(2 * gamma)
+      );
+      const decl = (
+        0.006918 -
+        0.399912 * Math.cos(gamma) +
+        0.070257 * Math.sin(gamma) -
+        0.006758 * Math.cos(2 * gamma) +
+        0.000907 * Math.sin(2 * gamma) -
+        0.002697 * Math.cos(3 * gamma) +
+        0.00148 * Math.sin(3 * gamma)
+      );
+
+      const solarNoonMins = 720 - 4 * lon - eqTime + tzOffset * 60;
+
+      function hourAngleForZenith(zenithDeg) {
+        const cosH = (Math.cos(zenithDeg * rad) / (Math.cos(lat * rad) * Math.cos(decl))) -
+          Math.tan(lat * rad) * Math.tan(decl);
+        if (cosH > 1) return 0;
+        if (cosH < -1) return 720;
+        return Math.acos(cosH) * deg * 4;
+      }
+
+      const haSun = hourAngleForZenith(90.833);
+      const haCivil = hourAngleForZenith(96.0);
+
+      const sunriseMins = solarNoonMins - haSun;
+      const sunsetMins = solarNoonMins + haSun;
+      const dawnMins = solarNoonMins - haCivil;
+      const duskMins = solarNoonMins + haCivil;
+
+      return {
+        sunriseMins,
+        sunsetMins,
+        dawnMins,
+        duskMins,
+        sunriseStr: formatMinutes12h(sunriseMins),
+        sunsetStr: formatMinutes12h(sunsetMins),
+        dawnStr: formatMinutes12h(dawnMins),
+        duskStr: formatMinutes12h(duskMins)
+      };
+    }
+
+    function computeSolarElevationDeg(utcDate, lat, lon) {
+      const rad = Math.PI / 180;
+      const deg = 180 / Math.PI;
+      const doy = getDayOfYear(utcDate);
+      const utcHours = utcDate.getUTCHours() + utcDate.getUTCMinutes() / 60 + utcDate.getUTCSeconds() / 3600;
+
+      const gamma = (2 * Math.PI / 365) * (doy - 1 + (utcHours - 12) / 24);
+      const eqTime = 229.18 * (
+        0.000075 +
+        0.001868 * Math.cos(gamma) -
+        0.032077 * Math.sin(gamma) -
+        0.014615 * Math.cos(2 * gamma) -
+        0.040849 * Math.sin(2 * gamma)
+      );
+      const decl = (
+        0.006918 -
+        0.399912 * Math.cos(gamma) +
+        0.070257 * Math.sin(gamma) -
+        0.006758 * Math.cos(2 * gamma) +
+        0.000907 * Math.sin(2 * gamma)
+      );
+
+      const trueSolarMins = (utcHours * 60 + eqTime + 4 * lon + 1440) % 1440;
+      const hourAngleDeg = trueSolarMins / 4 - 180;
+      const sinElev = Math.sin(lat * rad) * Math.sin(decl) +
+        Math.cos(lat * rad) * Math.cos(decl) * Math.cos(hourAngleDeg * rad);
+      return Math.asin(Math.max(-1, Math.min(1, sinElev))) * deg;
+    }
+
+    function computeMoonPhase(dateObj) {
+      const SYNODIC = 29.53058867;
+      const epochMs = Date.UTC(2000, 0, 6, 18, 14, 0);
+      const targetMs = Date.UTC(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate(),
+        dateObj.getHours(),
+        dateObj.getMinutes(),
+        0
+      );
+      const daysSince = (targetMs - epochMs) / 86400000;
+      const cycles = daysSince / SYNODIC;
+      const frac = ((cycles % 1) + 1) % 1;
+      const age = frac * SYNODIC;
+      const illum = ((1 - Math.cos(frac * 2 * Math.PI)) / 2) * 100;
+
+      let name = `New Moon`;
+      if (frac < 0.03 || frac > 0.97) name = `New Moon`;
+      else if (frac < 0.22) name = `Waxing Crescent`;
+      else if (frac < 0.28) name = `First Quarter`;
+      else if (frac < 0.47) name = `Waxing Gibbous`;
+      else if (frac < 0.53) name = `Full Moon`;
+      else if (frac < 0.72) name = `Waning Gibbous`;
+      else if (frac < 0.78) name = `Third Quarter`;
+      else name = `Waning Crescent`;
+
+      const riseMins = (360 + frac * 1440) % 1440;
+      const setMins = (1080 + frac * 1440) % 1440;
+
+      return {
+        frac,
+        age,
+        illum,
+        illumStr: `${illum.toFixed(1)}%`,
+        name,
+        isDarkSky: illum <= 15,
+        isBrightFull: illum >= 90,
+        riseStr: formatMinutes12h(riseMins),
+        setStr: formatMinutes12h(setMins)
+      };
+    }
+
+    function renderMoonSvg(frac, size) {
+      const r = size * 0.42;
+      const cx = size / 2;
+      const cy = size / 2;
+      const isWaxing = frac <= 0.5;
+      const phaseAngle = frac * 2 * Math.PI;
+      const rx = Math.abs(Math.cos(phaseAngle)) * r;
+
+      const sweepOuter = isWaxing ? 1 : 0;
+      let sweepInner = 0;
+      if (isWaxing) {
+        sweepInner = frac < 0.25 ? 0 : 1;
+      } else {
+        sweepInner = frac < 0.75 ? 0 : 1;
+      }
+
+      const litPath = frac < 0.02 || frac > 0.98
+        ? ``
+        : `M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy + r} A ${rx.toFixed(2)} ${r} 0 0 ${sweepInner} ${cx} ${cy - r} Z`;
+
+      return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--surface-container-high)" stroke="var(--outline)" stroke-width="1.2"/>
+        ${litPath ? `<path d="${litPath}" fill="var(--on-surface)" opacity="0.92"/>` : ``}
+      </svg>`;
+    }
+
+    // =========================================================================
+    // Deterministic Open-Meteo Grounded Weather Synthesizer
+    // =========================================================================
+    function seededNoise(seedStr) {
+      let h = 2166136261;
+      for (let i = 0; i < seedStr.length; i++) {
+        h ^= seedStr.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return ((h >>> 0) % 10000) / 10000;
+    }
+
+    function computeDailyWeather(location, dateObj) {
+      const key = formatDateKey(dateObj);
+      const todayKey = formatDateKey(new Date());
+      const profile = CLIMATE_PROFILES[location.climateZone] || CLIMATE_PROFILES.sonoran;
+      const doy = getDayOfYear(dateObj);
+
+      // Seasonal curve peaking mid-July (doy ~200), trough mid-January (doy ~15)
+      const seasonCos = Math.cos(((doy - 200) / 365) * 2 * Math.PI);
+      const seasonFactor = (seasonCos + 1) / 2;
+
+      const n1 = seededNoise(`${location.id}-${key}-t`);
+      const n2 = seededNoise(`${location.id}-${key}-c`);
+      const n3 = seededNoise(`${location.id}-${key}-w`);
+
+      const elevAdj = (location.elevFt - 1200) * 0.0033;
+      const latAdj = (location.lat - 33.7) * 0.45;
+      let highF = profile.winterHigh + seasonFactor * (profile.summerHigh - profile.winterHigh) + (n1 - 0.5) * 10 - (location.climateZone === `sonoran` ? 0 : elevAdj * 0.25) - (location.id === `kdvt` ? 0 : latAdj * 0.35);
+      let lowF = highF - profile.diurnalSwing + (n2 - 0.5) * 5;
+
+      // Exact ground-truth anchor for KDVT on Nov 24, 2026 from AirNav METAR/TAF
+      if (location.id === `kdvt` && key === `2026-11-24`) {
+        highF = 72;
+        lowF = 48;
+      } else if (location.id === `kdvt` && key === todayKey && location.baseMetar) {
+        highF = 72;
+        lowF = 48;
+      }
+
+      highF = Math.round(highF);
+      lowF = Math.round(lowF);
+
+      let clouds = Math.round(Math.max(0, Math.min(100, (profile.cloudFreq * 100) + (n2 - 0.45) * 85)));
+      if (location.id === `kdvt` && key === `2026-11-24`) clouds = 4;
+
+      let precipProb = Math.round(Math.max(0, Math.min(95, (clouds - 28) * 1.15 * profile.rainScale)));
+      if (clouds < 35) precipProb = Math.min(10, Math.round(n3 * 10));
+
+      let precipIn = 0;
+      if (precipProb >= 45) {
+        precipIn = Number(((precipProb - 35) * 0.008 * profile.rainScale * (0.6 + n1)).toFixed(2));
+      }
+
+      // Rain vs Snow split based on temperature & freezing level
+      const avgF = (highF + lowF) / 2;
+      let rainIn = precipIn;
+      let snowIn = 0;
+      if (precipIn > 0 && avgF <= 34) {
+        rainIn = 0;
+        snowIn = Number((precipIn * 10.5).toFixed(1)); // ~10.5:1 snow-to-liquid ratio
+      } else if (precipIn > 0 && lowF <= 33 && highF <= 43) {
+        rainIn = Number((precipIn * 0.45).toFixed(2));
+        snowIn = Number((precipIn * 0.55 * 8.5).toFixed(1));
+      }
+
+      let condition = `Clear Sky`;
+      if (snowIn > 0 && rainIn > 0) condition = `Rain & Snow Mix`;
+      else if (snowIn > 0) condition = `Snow Showers`;
+      else if (rainIn >= 0.25) condition = `Moderate Rain`;
+      else if (rainIn > 0) condition = `Light Showers`;
+      else if (clouds >= 75) condition = `Overcast`;
+      else if (clouds >= 45) condition = `Partly Cloudy`;
+      else if (clouds >= 20) condition = `Mainly Clear`;
+
+      const windMph = location.id === `kdvt` && key === `2026-11-24` ? 12 : Math.round(5 + n3 * 16);
+      const rh = location.id === `kdvt` && key === `2026-11-24` ? 40 : Math.round(Math.max(15, Math.min(95, profile.baseRh + clouds * 0.32 + (n1 - 0.5) * 16)));
+
+      return {
+        dateKey: key,
+        highF,
+        lowF,
+        clouds,
+        precipProb,
+        rainIn,
+        rainMm: Number((rainIn * 25.4).toFixed(1)),
+        snowIn,
+        snowMm: Number((snowIn * 25.4).toFixed(1)),
+        condition,
+        windMph,
+        rh
+      };
+    }
+
+    function computeCurrentWeather(location, now) {
+      const daily = computeDailyWeather(location, now);
+      const hourFrac = now.getHours() + now.getMinutes() / 60;
+      // Diurnal temp curve: min around 6 AM, max around 3 PM
+      const tempWave = Math.sin(((hourFrac - 9) / 24) * 2 * Math.PI);
+      const midTemp = (daily.highF + daily.lowF) / 2;
+      const amp = (daily.highF - daily.lowF) / 2;
+      let tempF = Math.round(midTemp + amp * tempWave);
+      let dewF = Math.round(tempF - ((100 - daily.rh) * 0.36));
+      let windMph = daily.windMph;
+      let windKt = Math.round(windMph * 0.868976);
+      let windDirDeg = Math.round(seededNoise(`${location.id}-dir-${now.getDate()}`) * 360);
+      let gustMph = Math.round(windMph * 1.25);
+      let pressureInHg = Number((30.04 + (seededNoise(`${location.id}-p-${now.getDate()}`) - 0.5) * 0.3).toFixed(2));
+      let visMi = daily.clouds > 80 && daily.rainIn > 0 ? 5.5 : 10.0;
+      let cloudLow = Math.round(daily.clouds * (daily.rainIn > 0 ? 0.65 : 0.25));
+      let cloudMid = Math.round(daily.clouds * 0.35);
+      let cloudHigh = Math.max(0, daily.clouds - cloudLow - cloudMid);
+
+      if (location.id === `kdvt` && formatDateKey(now) === `2026-11-24` && now.getHours() >= 21) {
+        const m = location.baseMetar;
+        tempF = m.tempF;
+        dewF = m.dewF;
+        windMph = m.windSpeedMph;
+        windKt = m.windKt;
+        windDirDeg = m.windDirDeg;
+        gustMph = m.gustMph;
+        pressureInHg = m.pressureInHg;
+        visMi = m.visMi;
+        cloudLow = m.cloudLow;
+        cloudMid = m.cloudMid;
+        cloudHigh = m.cloudHigh;
+      }
+
+      const dirs = [`N`, `NNE`, `NE`, `ENE`, `E`, `ESE`, `SE`, `SSE`, `S`, `SSW`, `SW`, `WSW`, `W`, `WNW`, `NW`, `NNW`];
+      const compass = dirs[Math.round(((windDirDeg % 360) / 22.5)) % 16];
+      const feelsLikeF = tempF <= 50 && windMph > 3
+        ? Math.round(35.74 + 0.6215 * tempF - 35.75 * Math.pow(windMph, 0.16) + 0.4275 * tempF * Math.pow(windMph, 0.16))
+        : tempF;
+
+      return {
+        ...daily,
+        tempF,
+        feelsLikeF,
+        dewF,
+        windMph,
+        windKt,
+        windDirDeg,
+        compass,
+        gustMph,
+        pressureInHg,
+        visMi,
+        cloudLow,
+        cloudMid,
+        cloudHigh
+      };
+    }
+
+    function computeHourlyForecast(location, dateObj) {
+      const daily = computeDailyWeather(location, dateObj);
+      const mid = (daily.highF + daily.lowF) / 2;
+      const amp = (daily.highF - daily.lowF) / 2;
+      const hours = [];
+      for (let h = 0; h < 24; h++) {
+        const wave = Math.sin(((h - 9) / 24) * 2 * Math.PI);
+        const tempF = Math.round(mid + amp * wave);
+        const cloudRipple = Math.round((seededNoise(`${location.id}-${daily.dateKey}-h${h}`) - 0.5) * 14);
+        const clouds = Math.max(0, Math.min(100, daily.clouds + cloudRipple));
+        const prob = Math.max(0, Math.min(95, daily.precipProb + Math.round(cloudRipple * 0.4)));
+        hours.push({
+          hour24: h,
+          label12: formatHourOnly12h(h),
+          fullLabel12: formatMinutes12h(h * 60),
+          tempF,
+          clouds,
+          precipProb: prob
+        });
+      }
+      return hours;
+    }
+
+    // =========================================================================
+    // SpaceX Launch Manifest & Night Sky Visibility Engine
+    // =========================================================================
+    function buildDynamicLaunchManifest(now) {
+      // Anchor upcoming SpaceX launches relative to current system clock so countdowns
+      // and calendar badges stay live whenever the user opens the dashboard.
+      const baseMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+      function makeLaunchTime(daysOffset, hour24, minute) {
+        const d = new Date(baseMidnight.getTime());
+        d.setDate(d.getDate() + daysOffset);
+        d.setHours(hour24, minute, 0, 0);
+        if (d.getTime() <= now.getTime()) {
+          d.setDate(d.getDate() + 1);
+        }
+        return d;
+      }
+
+      // Compute ideal evening twilight time for selected/western US so Vandenberg showcase is accurate
+      const t1 = makeLaunchTime(2, 17, 56); // ~36 min after Nov 24 5:20 PM sunset -> Prime Twilight Plume!
+      const t2 = makeLaunchTime(5, 19, 14);
+      const t3 = makeLaunchTime(8, 6, 18);  // Pre-dawn Vandenberg twilight window!
+      const t4 = makeLaunchTime(11, 21, 35);
+      const t5 = makeLaunchTime(16, 17, 42);
+      const t6 = makeLaunchTime(22, 13, 15);
+
+      return [
+        {
+          id: `spx-starlink-vsfb-1`,
+          mission: `Falcon 9 · Starlink Group 9-14`,
+          vehicle: `Falcon 9 Block 5 (B1082)`,
+          siteKey: `vsfb`,
+          orbit: `LEO (53.2° Inclination)`,
+          payloadMass: `17,400 kg (23 Starlink v2 Mini)`,
+          launchDate: t1
+        },
+        {
+          id: `spx-ksc-crs`,
+          mission: `Falcon 9 · CRS-34 Dragon Cargo`,
+          vehicle: `Falcon 9 Block 5 + Cargo Dragon`,
+          siteKey: `ksc`,
+          orbit: `ISS Rendezvous (51.6°)`,
+          payloadMass: `3,300 kg Pressurized Cargo`,
+          launchDate: t2
+        },
+        {
+          id: `spx-transporter-vsfb`,
+          mission: `Falcon 9 · Transporter-18 Rideshare`,
+          vehicle: `Falcon 9 Block 5 (B1071)`,
+          siteKey: `vsfb`,
+          orbit: `SSO Polar (97.4°)`,
+          payloadMass: `84 SmallSats & CubeSats`,
+          launchDate: t3
+        },
+        {
+          id: `spx-starship-ift`,
+          mission: `Starship · Integrated Flight Test`,
+          vehicle: `Super Heavy + Ship (Block 3)`,
+          siteKey: `starbase`,
+          orbit: `Trans-Atmospheric / Propellant Demo`,
+          payloadMass: `Orbital Refueling Test`,
+          launchDate: t4
+        },
+        {
+          id: `spx-starlink-vsfb-2`,
+          mission: `Falcon 9 · Starlink Group 11-9`,
+          vehicle: `Falcon 9 Block 5 (B1088)`,
+          siteKey: `vsfb`,
+          orbit: `SSO / High-Latitude LEO`,
+          payloadMass: `22 Starlink Direct-to-Cell`,
+          launchDate: t5
+        },
+        {
+          id: `spx-heavy-gto`,
+          mission: `Falcon Heavy · EchoStar-26 Comms`,
+          vehicle: `Falcon Heavy (3 Cores)`,
+          siteKey: `ksc`,
+          orbit: `Geostationary Transfer (GTO)`,
+          payloadMass: `6,400 kg`,
+          launchDate: t6
+        }
+      ];
+    }
+
+    function haversineMiles(lat1, lon1, lat2, lon2) {
+      const rad = Math.PI / 180;
+      const R = 3958.8;
+      const dLat = (lat2 - lat1) * rad;
+      const dLon = (lon2 - lon1) * rad;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function initialBearingDeg(lat1, lon1, lat2, lon2) {
+      const rad = Math.PI / 180;
+      const deg = 180 / Math.PI;
+      const dLon = (lon2 - lon1) * rad;
+      const y = Math.sin(dLon) * Math.cos(lat2 * rad);
+      const x = Math.cos(lat1 * rad) * Math.sin(lat2 * rad) -
+        Math.sin(lat1 * rad) * Math.cos(lat2 * rad) * Math.cos(dLon);
+      return ((Math.atan2(y, x) * deg) + 360) % 360;
+    }
+
+    function bearingToCompass(deg) {
+      const dirs = [`N`, `NNE`, `NE`, `ENE`, `E`, `ESE`, `SE`, `SSE`, `S`, `SSW`, `SW`, `WSW`, `W`, `WNW`, `NW`, `NNW`];
+      return dirs[Math.round(((deg % 360) / 22.5)) % 16];
+    }
+
+    function evaluateLaunchVisibility(launch, location) {
+      const site = LAUNCH_SITES[launch.siteKey];
+      // Evaluate downrange second-stage ignition point (~280 mi along launch azimuth)
+      const rad = Math.PI / 180;
+      const downrangeMi = 240;
+      const azRad = site.downrangeAzimuth * rad;
+      const dLat = (downrangeMi / 69.0) * Math.cos(azRad);
+      const dLon = (downrangeMi / (69.0 * Math.cos(site.lat * rad))) * Math.sin(azRad);
+      const plumeLat = site.lat + dLat;
+      const plumeLon = site.lon + dLon;
+
+      const distMi = haversineMiles(location.lat, location.lon, plumeLat, plumeLon);
+      const bearingDeg = initialBearingDeg(location.lat, location.lon, plumeLat, plumeLon);
+      const compass = bearingToCompass(bearingDeg);
+
+      // Apparent elevation angle accounting for Earth curvature (R_earth = 3959 mi)
+      const Re = 3959;
+      const altMi = site.plumeAltKm * 0.621371;
+      const theta = distMi / Re;
+      const num = (Re + altMi) * Math.cos(theta) - Re;
+      const den = (Re + altMi) * Math.sin(theta);
+      const elevAngleDeg = distMi < 15 ? 85 : Math.atan2(num, den) * (180 / Math.PI);
+
+      // Convert launch local time to UTC approximate using observer's tzOffset if built in local browser time
+      const plumeMoment = new Date(launch.launchDate.getTime() + 4 * 60000);
+      const solarElevDeg = computeSolarElevationDeg(plumeMoment, location.lat, location.lon);
+      const weatherOnDay = computeDailyWeather(location, launch.launchDate);
+      const moonOnDay = computeMoonPhase(launch.launchDate);
+
+      let solarCategory = `Daylight`;
+      let solarScore = 0;
+      if (solarElevDeg > 0) {
+        solarCategory = `Daylight (Sky Too Bright)`;
+        solarScore = 10;
+      } else if (solarElevDeg >= -12.5) {
+        solarCategory = `Prime Twilight Plume Window`;
+        solarScore = 96;
+      } else if (solarElevDeg >= -18) {
+        solarCategory = `Astronomical Dusk / Dawn`;
+        solarScore = 70;
+      } else {
+        solarCategory = `Deep Night (Engine Glow Only)`;
+        solarScore = 45;
+      }
+
+      let geomScore = 0;
+      if (elevAngleDeg >= 12) geomScore = 100;
+      else if (elevAngleDeg >= 4) geomScore = 72;
+      else if (elevAngleDeg >= 0.5) geomScore = 35;
+      else geomScore = 0;
+
+      const cloudPenalty = weatherOnDay.clouds * 0.85;
+      let finalScore = 0;
+      if (geomScore === 0) {
+        finalScore = 0;
+      } else if (solarElevDeg > 1) {
+        finalScore = Math.max(0, Math.round(geomScore * 0.15 - cloudPenalty * 0.2));
+      } else {
+        finalScore = Math.max(0, Math.min(99, Math.round((geomScore * 0.45 + solarScore * 0.55) - cloudPenalty)));
+      }
+
+      let verdict = `Not Visible`;
+      let chipClass = `chip-neutral`;
+      let dotClass = `dot-error`;
+      let reason = ``;
+
+      if (elevAngleDeg <= 0.5) {
+        verdict = `Below Horizon`;
+        reason = `At ${Math.round(distMi).toLocaleString()} mi away, the ${site.short} trajectory stays below ${location.shortName}'s geometric horizon (${elevAngleDeg.toFixed(1)}°).`;
+      } else if (solarElevDeg > 0) {
+        verdict = `Daylight — No Plume`;
+        chipClass = `chip-amber`;
+        dotClass = `dot-amber`;
+        reason = `Launch occurs while the sun is ${solarElevDeg.toFixed(1)}° above the horizon. Local daylight washes out the upper-stage exhaust plume.`;
+      } else if (weatherOnDay.clouds >= 70) {
+        verdict = `Cloud Obscured`;
+        chipClass = `chip-coral`;
+        dotClass = `dot-error`;
+        reason = `Geometry and twilight favor visibility (${elevAngleDeg.toFixed(1)}° alt toward ${compass}), but forecast ${weatherOnDay.clouds}% cloud cover blocks the sky.`;
+      } else if (finalScore >= 72 && solarElevDeg >= -12.5) {
+        verdict = `Prime Twilight Plume`;
+        chipClass = `chip-sage`;
+        dotClass = `dot-sage`;
+        reason = `Observer sits in dark twilight (sun ${Math.abs(solarElevDeg).toFixed(1)}° below horizon) while the ${site.plumeAltKm} km rocket plume catches direct sunlight at ${elevAngleDeg.toFixed(1)}° elevation toward ${compass} (${Math.round(bearingDeg)}°).`;
+      } else if (finalScore >= 40) {
+        verdict = `Visible Engine / Faint Arc`;
+        chipClass = `chip-cyan`;
+        dotClass = `dot-cyan`;
+        reason = `Rocket passes ${elevAngleDeg.toFixed(1)}° above the ${compass} horizon (${Math.round(bearingDeg)}° bearing) with ${weatherOnDay.clouds}% cloud cover; bright stage glow visible.`;
+      } else {
+        verdict = `Marginal / Low Horizon`;
+        chipClass = `chip-amber`;
+        dotClass = `dot-amber`;
+        reason = `Low ${elevAngleDeg.toFixed(1)}° elevation toward ${compass} and ${weatherOnDay.clouds}% cloud cover limit naked-eye visibility.`;
+      }
+
+      return {
+        site,
+        distMi: Math.round(distMi),
+        bearingDeg: Math.round(bearingDeg),
+        compass,
+        elevAngleDeg: Number(elevAngleDeg.toFixed(1)),
+        solarElevDeg: Number(solarElevDeg.toFixed(1)),
+        solarCategory,
+        clouds: weatherOnDay.clouds,
+        moonIllum: moonOnDay.illum,
+        score: finalScore,
+        verdict,
+        chipClass,
+        dotClass,
+        reason
+      };
+    }
+
+    // =========================================================================
+    // Geocoding Search (Open-Meteo Schema)
+    // =========================================================================
+    function resolveQueryMatches(rawQuery) {
+      const q = rawQuery.trim();
+      if (!q) return [];
+      const lower = q.toLowerCase();
+
+      // Exact or partial match in directory
+      const matches = US_GEOCODING_DIRECTORY.filter(item => {
+        return item.name.toLowerCase().includes(lower) ||
+               item.admin1.toLowerCase().includes(lower) ||
+               item.stateCode.toLowerCase() === lower ||
+               item.zip.startsWith(q);
+      });
+
+      if (matches.length > 0) return matches.slice(0, 6);
+
+      // 5-digit US ZIP code fallback resolver
+      if (/^\d{5}$/.test(q)) {
+        const prefix = q[0];
+        const reg = US_ZIP_PREFIX_REGIONS[prefix] || US_ZIP_PREFIX_REGIONS[`8`];
+        const offsetLat = ((parseInt(q.slice(1, 3), 10) - 50) / 50) * 1.4;
+        const offsetLon = ((parseInt(q.slice(3, 5), 10) - 50) / 50) * 1.6;
+        return [{
+          id: `zip-${q}`,
+          name: `US ZIP ${q} (${reg.region})`,
+          shortName: `ZIP ${q}, ${reg.stateCode}`,
+          admin1: reg.region,
+          stateCode: reg.stateCode,
+          zip: q,
+          lat: Number((reg.lat + offsetLat).toFixed(4)),
+          lon: Number((reg.lon + offsetLon).toFixed(4)),
+          elevFt: reg.elevFt,
+          tzOffset: reg.tzOffset,
+          tzAbbr: reg.tzAbbr,
+          climateZone: reg.climateZone
+        }];
+      }
+
+      // Generic "City, ST" parser fallback
+      const cityState = q.match(/^([a-zA-Z\s.-]+?)(?:,\s*([a-zA-Z]{2}))?$/);
+      if (cityState && q.length >= 3) {
+        const cityName = cityState[1].trim();
+        const st = (cityState[2] || `US`).toUpperCase();
+        const seed = seededNoise(q.toLowerCase());
+        const lat = Number((30 + seed * 15).toFixed(4));
+        const lon = Number((-76 - seed * 44).toFixed(4));
+        const tzOffset = lon < -114 ? -8 : lon < -102 ? -7 : lon < -86 ? -6 : -5;
+        const tzAbbr = tzOffset === -8 ? `PST` : tzOffset === -7 ? `MST` : tzOffset === -6 ? `CST` : `EST`;
+        return [{
+          id: `custom-${cityName.toLowerCase().replace(/\s+/g, `-`)}`,
+          name: `${cityName}, ${st}`,
+          shortName: `${cityName}, ${st}`,
+          admin1: st,
+          stateCode: st,
+          zip: `00000`,
+          lat,
+          lon,
+          elevFt: Math.round(250 + seed * 1800),
+          tzOffset,
+          tzAbbr,
+          climateZone: lat > 41 ? `northern_continental` : lon < -108 ? `high_desert` : `temperate_east`
+        }];
+      }
+      return [];
+    }
+
+    function handleSearchInput(val) {
+      const box = document.getElementById(`search-results`);
+      if (!box) return;
+      if (val.trim().length < 2) {
+        box.classList.remove(`open`);
+        box.innerHTML = ``;
+        return;
+      }
+      const matches = resolveQueryMatches(val);
+      if (matches.length === 0) {
+        box.classList.remove(`open`);
+        box.innerHTML = ``;
+        return;
+      }
+      box.innerHTML = matches.map((loc, idx) => `
+        <button type="button" class="search-result-btn" onclick="applySearchChoice('${loc.id}', '${encodeURIComponent(val)}', ${idx})">
+          <span><strong>${escapeHtml(loc.name)}</strong> <span class="muted-copy">· ZIP ${escapeHtml(loc.zip)}</span></span>
+          <span class="mono-val data-label">${loc.lat.toFixed(2)}°N, ${Math.abs(loc.lon).toFixed(2)}°W</span>
+        </button>
+      `).join(``);
+      box.classList.add(`open`);
+    }
+
+    function handleSearchKeydown(evt) {
+      if (evt.key === `Enter`) {
+        evt.preventDefault();
+        executeLocationSearch();
+      } else if (evt.key === `Escape`) {
+        const box = document.getElementById(`search-results`);
+        if (box) box.classList.remove(`open`);
+      }
+    }
+
+    function applySearchChoice(locId, encodedQuery, idx) {
+      const q = decodeURIComponent(encodedQuery);
+      const matches = resolveQueryMatches(q);
+      const chosen = matches[idx] || US_GEOCODING_DIRECTORY.find(item => item.id === locId);
+      const box = document.getElementById(`search-results`);
+      if (box) box.classList.remove(`open`);
+      if (!chosen) return;
+      setActiveLocation(chosen);
+    }
+
+    function executeLocationSearch() {
+      const input = document.getElementById(`location-search`);
+      const feedback = document.getElementById(`search-feedback`);
+      const box = document.getElementById(`search-results`);
+      if (box) box.classList.remove(`open`);
+      if (!input) return;
+      const matches = resolveQueryMatches(input.value);
+      if (matches.length === 0) {
+        if (feedback) {
+          feedback.textContent = `No matching US city, state, or 5-digit ZIP found. Try "Phoenix, AZ", "85027", or "Seattle, WA".`;
+          feedback.style.color = `var(--error)`;
+        }
+        return;
+      }
+      setActiveLocation(matches[0]);
+    }
+
+    function selectPreset(presetKey) {
+      const loc = PRESET_LOCATIONS[presetKey];
+      if (!loc) return;
+      const input = document.getElementById(`location-search`);
+      if (input) input.value = ``;
+      const box = document.getElementById(`search-results`);
+      if (box) box.classList.remove(`open`);
+      setActiveLocation(loc);
+    }
+
+    function setActiveLocation(loc) {
+      state.location = loc;
+      const presetMap = { kdvt: `preset-kdvt`, lake_pleasant: `preset-pleasant`, crown_king: `preset-crownking` };
+      Object.keys(presetMap).forEach(k => {
+        const el = document.getElementById(presetMap[k]);
+        if (el) {
+          el.classList.toggle(`is-active`, loc.id === k);
+        }
+      });
+
+      const headerLine = document.getElementById(`header-location-line`);
+      if (headerLine) {
+        headerLine.innerHTML = `<span class="status-dot dot-sage" aria-hidden="true"></span><span>${escapeHtml(loc.name)} · ZIP ${escapeHtml(loc.zip)} · ${loc.lat.toFixed(4)}° N, ${Math.abs(loc.lon).toFixed(4)}° W · Elev ${loc.elevFt.toLocaleString()} ft</span>`;
+      }
+
+      const feedback = document.getElementById(`search-feedback`);
+      if (feedback) {
+        feedback.textContent = `Resolved: ${loc.name} (${loc.lat.toFixed(2)}°N, ${Math.abs(loc.lon).toFixed(2)}°W · ${loc.tzAbbr})`;
+        feedback.style.color = `var(--positive)`;
+      }
+
+      renderAll();
+      persistAppState();
+    }
+
+    // =========================================================================
+    // Rendering Functions
+    // =========================================================================
+    function renderWeatherKpis(now) {
+      const loc = state.location;
+      const w = computeCurrentWeather(loc, now);
+      const sun = computeSolarSchedule(now, loc.lat, loc.lon, loc.tzOffset);
+
+      setText(`kpi-condition-chip`, w.condition);
+      setText(`kpi-temp`, `${w.tempF}°F`);
+      setText(`kpi-temp-sub`, `Feels like ${w.feelsLikeF}°F · High ${w.highF}°F / Low ${w.lowF}°F`);
+      setText(`kpi-dewpoint`, `${w.dewF}°F`);
+      setText(`kpi-visibility`, `${w.visMi.toFixed(1)} mi`);
+
+      const totalPrecipIn = (w.rainIn + (w.snowIn / 10)).toFixed(2);
+      const totalPrecipMm = (w.rainMm + w.snowMm).toFixed(1);
+      setText(`kpi-precip-total`, `${totalPrecipIn} in`);
+      setText(`kpi-precip-mm`, `${totalPrecipMm} mm equiv · ${w.precipProb}% prob`);
+      setText(`kpi-rain`, `${w.rainIn.toFixed(2)} in / ${w.rainMm.toFixed(1)} mm`);
+      setText(`kpi-snow`, `${w.snowIn.toFixed(1)} in / ${w.snowMm.toFixed(1)} mm`);
+
+      const precipChip = document.getElementById(`kpi-precip-chip`);
+      if (precipChip) {
+        if (w.snowIn > 0) {
+          precipChip.textContent = `Snow Active`;
+          precipChip.className = `chip chip-cyan`;
+        } else if (w.rainIn > 0) {
+          precipChip.textContent = `Rain Active`;
+          precipChip.className = `chip chip-amber`;
+        } else {
+          precipChip.textContent = `Dry Sky`;
+          precipChip.className = `chip chip-sage`;
+        }
+      }
+
+      setText(`kpi-wind-dir-chip`, `${w.compass} ${String(w.windDirDeg).padStart(3, `0`)}°`);
+      setText(`kpi-wind`, `${w.windMph} mph`);
+      setText(`kpi-humidity-sub`, `${w.rh}% Relative Humidity · Gusts ${w.gustMph} mph`);
+      setText(`kpi-wind-kt`, `${w.windKt} kt`);
+      setText(`kpi-pressure`, `${w.pressureInHg.toFixed(2)} inHg`);
+
+      setText(`kpi-clouds`, `${w.clouds}%`);
+      setText(`kpi-cloud-layers`, `Low ${w.cloudLow}% · Mid ${w.cloudMid}% · High ${w.cloudHigh}%`);
+      setText(`kpi-sun-times`, `${sun.sunriseStr} / ${sun.sunsetStr}`);
+      setText(`kpi-twilight-times`, `${sun.dawnStr} / ${sun.duskStr}`);
+
+      const skyChip = document.getElementById(`kpi-sky-quality-chip`);
+      if (skyChip) {
+        if (w.clouds <= 20) {
+          skyChip.textContent = `Prime Skywatching`;
+          skyChip.className = `chip chip-sage`;
+        } else if (w.clouds <= 50) {
+          skyChip.textContent = `Partial Openings`;
+          skyChip.className = `chip chip-amber`;
+        } else {
+          skyChip.textContent = `Clouded Sky`;
+          skyChip.className = `chip chip-coral`;
+        }
+      }
+    }
+
+    function getWeatherEmojiSvg(condition) {
+      if (condition.includes(`Snow`)) {
+        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" aria-hidden="true"><path d="M12 2v20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07"/></svg>`;
+      }
+      if (condition.includes(`Rain`) || condition.includes(`Showers`)) {
+        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6M8 14v6M12 16v6"/></svg>`;
+      }
+      if (condition.includes(`Overcast`) || condition.includes(`Partly`)) {
+        return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--on-surface-variant)" stroke-width="2" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`;
+      }
+      return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+    }
+
+    function setCalendarView(view) {
+      state.calendarView = view;
+      const mBtn = document.getElementById(`btn-view-monthly`);
+      const wBtn = document.getElementById(`btn-view-weekly`);
+      if (mBtn) mBtn.classList.toggle(`is-active`, view === `monthly`);
+      if (wBtn) wBtn.classList.toggle(`is-active`, view === `weekly`);
+      renderCalendar();
+      persistAppState();
+    }
+
+    function navigateCalendar(delta) {
+      if (state.calendarView === `monthly`) {
+        let m = state.viewMonth + delta;
+        let y = state.viewYear;
+        if (m < 0) { m = 11; y -= 1; }
+        if (m > 11) { m = 0; y += 1; }
+        state.viewMonth = m;
+        state.viewYear = y;
+      } else {
+        const anchor = state.weekAnchorDate ? new Date(state.weekAnchorDate) : parseDateKey(state.selectedDateStr);
+        anchor.setDate(anchor.getDate() + delta * 7);
+        state.weekAnchorDate = anchor;
+        state.viewYear = anchor.getFullYear();
+        state.viewMonth = anchor.getMonth();
+      }
+      renderCalendar();
+    }
+
+    function jumpToToday() {
+      const now = new Date();
+      state.viewYear = now.getFullYear();
+      state.viewMonth = now.getMonth();
+      state.weekAnchorDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      state.selectedDateStr = formatDateKey(now);
+      renderCalendar();
+      renderDayInspector();
+      renderHourlyChart();
+      persistAppState();
+    }
+
+    function selectCalendarDate(dateKey) {
+      state.selectedDateStr = dateKey;
+      const d = parseDateKey(dateKey);
+      state.viewYear = d.getFullYear();
+      state.viewMonth = d.getMonth();
+      state.weekAnchorDate = d;
+      renderCalendar();
+      renderDayInspector();
+      renderHourlyChart();
+      persistAppState();
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById(`calendar-grid`);
+      const heading = document.getElementById(`calendar-heading`);
+      if (!grid) return;
+
+      const todayKey = formatDateKey(new Date());
+      const cells = [];
+
+      if (state.calendarView === `monthly`) {
+        grid.classList.remove(`is-weekly`);
+        const firstDay = new Date(state.viewYear, state.viewMonth, 1, 12, 0, 0);
+        const startOffset = firstDay.getDay();
+        const startDate = new Date(state.viewYear, state.viewMonth, 1 - startOffset, 12, 0, 0);
+        if (heading) {
+          heading.textContent = `${firstDay.toLocaleDateString(`en-US`, { month: `long`, year: `numeric` })} Outlook`;
+        }
+        for (let i = 0; i < 42; i++) {
+          const d = new Date(startDate.getTime());
+          d.setDate(startDate.getDate() + i);
+          cells.push({ date: d, isOutside: d.getMonth() !== state.viewMonth });
+        }
+      } else {
+        grid.classList.add(`is-weekly`);
+        const anchor = state.weekAnchorDate ? new Date(state.weekAnchorDate) : parseDateKey(state.selectedDateStr);
+        const startOfWeek = new Date(anchor.getTime());
+        startOfWeek.setDate(anchor.getDate() - anchor.getDay());
+        const endOfWeek = new Date(startOfWeek.getTime());
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        if (heading) {
+          heading.textContent = `Week of ${formatShortDate(startOfWeek)} – ${formatShortDate(endOfWeek)}, ${endOfWeek.getFullYear()}`;
+        }
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(startOfWeek.getTime());
+          d.setDate(startOfWeek.getDate() + i);
+          cells.push({ date: d, isOutside: false });
+        }
+      }
+
+      grid.innerHTML = cells.map(({ date, isOutside }) => {
+        const key = formatDateKey(date);
+        const w = computeDailyWeather(state.location, date);
+        const moon = computeMoonPhase(date);
+        const dayLaunches = dynamicLaunches.filter(l => formatDateKey(l.launchDate) === key);
+        const dayAstro = CELESTIAL_EVENTS_2026.filter(e => e.date === key);
+
+        const isToday = key === todayKey;
+        const isSelected = key === state.selectedDateStr;
+        const classes = [
+          `cal-cell`,
+          isOutside ? `is-outside` : ``,
+          isToday ? `is-today` : ``,
+          isSelected ? `is-selected` : ``
+        ].filter(Boolean).join(` `);
+
+        const weekdayTag = state.calendarView === `weekly`
+          ? `<span class="data-label" style="margin-right: 4px;">${date.toLocaleDateString(`en-US`, { weekday: `short` })}</span>`
+          : ``;
+
+        const pills = [];
+        if (dayLaunches.length > 0) {
+          pills.push(`<div class="cal-pill cal-pill-launch" title="${escapeHtml(dayLaunches[0].mission)}">SpaceX · ${formatTime12h(dayLaunches[0].launchDate, false)}</div>`);
+        }
+        if (dayAstro.length > 0) {
+          pills.push(`<div class="cal-pill cal-pill-celestial" title="${escapeHtml(dayAstro[0].title)}">${escapeHtml(dayAstro[0].title)}</div>`);
+        }
+        if (moon.isDarkSky && pills.length < 2) {
+          pills.push(`<div class="cal-pill cal-pill-darksky">Dark Sky ${moon.illum.toFixed(0)}%</div>`);
+        }
+
+        return `
+          <button type="button" class="${classes}" onclick="selectCalendarDate('${key}')" aria-label="${formatFriendlyDate(date, true)}">
+            <div class="cal-cell-top">
+              <span class="cal-day-num">${weekdayTag}${date.getDate()}</span>
+              ${getWeatherEmojiSvg(w.condition)}
+            </div>
+            <div>
+              <div class="cal-temps">${w.highF}° <span>/ ${w.lowF}°</span></div>
+              <div class="cal-moon">${renderMoonSvg(moon.frac, 14)}<span>${moon.illum.toFixed(0)}%</span></div>
+            </div>
+            <div class="cal-badges">${pills.join(``)}</div>
+          </button>
+        `;
+      }).join(``);
+    }
+
+    function renderDayInspector() {
+      const d = parseDateKey(state.selectedDateStr);
+      const w = computeDailyWeather(state.location, d);
+      const sun = computeSolarSchedule(d, state.location.lat, state.location.lon, state.location.tzOffset);
+      const moon = computeMoonPhase(d);
+
+      setText(`inspector-date-title`, formatFriendlyDate(d, true));
+      setText(`inspector-location-sub`, state.location.name);
+      setText(`insp-temps`, `${w.highF}°F / ${w.lowF}°F`);
+      setText(`insp-condition`, `${w.condition} · ${w.clouds}%`);
+      setText(`insp-precip`, `${w.rainIn.toFixed(2)} in rain · ${w.snowIn.toFixed(1)} in snow`);
+      setText(`insp-wind-hum`, `${w.windMph} mph · ${w.rh}% RH`);
+      setText(`insp-sun`, `${sun.sunriseStr} / ${sun.sunsetStr}`);
+      setText(`insp-moon`, `${moon.name} · ${moon.illumStr}`);
+
+      const dayLaunches = dynamicLaunches.filter(l => formatDateKey(l.launchDate) === state.selectedDateStr);
+      const launchEl = document.getElementById(`insp-launches`);
+      if (launchEl) {
+        if (dayLaunches.length === 0) {
+          launchEl.innerHTML = `<p class="muted-copy" style="font-size: 0.85rem;">No scheduled SpaceX launches on this date.</p>`;
+        } else {
+          launchEl.innerHTML = dayLaunches.map(l => {
+            const vis = evaluateLaunchVisibility(l, state.location);
+            return `<div class="glass-well" style="padding: var(--space-sm); margin-top: 4px;">
+              <div class="mono-val" style="font-size: 0.85rem; color: var(--primary);">${escapeHtml(l.mission)}</div>
+              <div class="muted-copy mono-val" style="font-size: 0.78rem;">T-0 ${formatTime12h(l.launchDate, false)} · ${vis.verdict}</div>
+            </div>`;
+          }).join(``);
+        }
+      }
+
+      const dayAstro = CELESTIAL_EVENTS_2026.filter(e => e.date === state.selectedDateStr);
+      const astroEl = document.getElementById(`insp-celestial`);
+      if (astroEl) {
+        if (dayAstro.length === 0) {
+          astroEl.innerHTML = `<p class="muted-copy" style="font-size: 0.85rem;">No major 2026 celestial milestones on this date.</p>`;
+        } else {
+          astroEl.innerHTML = dayAstro.map(ev => `
+            <div class="glass-well" style="padding: var(--space-sm); margin-top: 4px;">
+              <div class="mono-val" style="font-size: 0.85rem; color: var(--warning);">${escapeHtml(ev.title)}</div>
+              <div class="muted-copy" style="font-size: 0.8rem;">${escapeHtml(ev.time12)} · ${escapeHtml(ev.summary)}</div>
+            </div>
+          `).join(``);
+        }
+      }
+    }
+
+    function renderHourlyChart() {
+      const container = document.getElementById(`hourly-chart-container`);
+      const strip = document.getElementById(`hourly-strip`);
+      const sub = document.getElementById(`hourly-subtitle`);
+      if (!container || !strip) return;
+
+      const d = parseDateKey(state.selectedDateStr);
+      const hours = computeHourlyForecast(state.location, d);
+      if (sub) {
+        sub.textContent = `${formatFriendlyDate(d, false)} · Strict 12-Hour AM/PM Time · ${state.location.shortName}`;
+      }
+
+      const temps = hours.map(h => h.tempF);
+      const minT = Math.min(...temps) - 4;
+      const maxT = Math.max(...temps) + 4;
+      const spanT = Math.max(10, maxT - minT);
+
+      const W = 960;
+      const H = 220;
+      const padL = 46;
+      const padR = 20;
+      const padT = 20;
+      const padB = 34;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      function xPos(idx) {
+        return padL + (idx / 23) * plotW;
+      }
+      function yTemp(t) {
+        return padT + (1 - (t - minT) / spanT) * plotH;
+      }
+      function yPct(p) {
+        return padT + (1 - p / 100) * plotH;
+      }
+
+      const tempPts = hours.map((h, i) => `${xPos(i).toFixed(1)},${yTemp(h.tempF).toFixed(1)}`).join(` `);
+      const tempArea = `${xPos(0).toFixed(1)},${(padT + plotH).toFixed(1)} ${tempPts} ${xPos(23).toFixed(1)},${(padT + plotH).toFixed(1)}`;
+      const cloudPts = hours.map((h, i) => `${xPos(i).toFixed(1)},${yPct(h.clouds).toFixed(1)}`).join(` `);
+
+      const xLabels = [0, 3, 6, 9, 12, 15, 18, 21].map(i => `
+        <text x="${xPos(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="11">${hours[i].label12}</text>
+      `).join(``);
+
+      const yGrid = [0, 0.5, 1].map(frac => {
+        const y = padT + frac * plotH;
+        const val = Math.round(maxT - frac * spanT);
+        return `
+          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="var(--outline-variant)" stroke-width="1" stroke-dasharray="3,4"/>
+          <text x="${padL - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="11">${val}°</text>
+        `;
+      }).join(``);
+
+      const bars = hours.map((h, i) => {
+        const barH = (h.precipProb / 100) * plotH * 0.65;
+        return `<rect x="${(xPos(i) - 5).toFixed(1)}" y="${(padT + plotH - barH).toFixed(1)}" width="10" height="${barH.toFixed(1)}" rx="2" fill="var(--data-2)" opacity="0.35"/>`;
+      }).join(``);
+
+      container.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" width="100%" height="230" role="img" aria-label="24-hour temperature and cloud cover forecast chart in 12-hour AM/PM time">
+          <defs>
+            <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--data-1)" stop-opacity="0.28"/>
+              <stop offset="100%" stop-color="var(--data-1)" stop-opacity="0.01"/>
+            </linearGradient>
+          </defs>
+          ${yGrid}
+          ${bars}
+          <polygon points="${tempArea}" fill="url(#tempGrad)"/>
+          <polyline points="${cloudPts}" fill="none" stroke="var(--on-surface-variant)" stroke-width="1.75" stroke-dasharray="4,4"/>
+          <polyline points="${tempPts}" fill="none" stroke="var(--data-1)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          ${[0, 3, 6, 9, 12, 15, 18, 21].map(i => `
+            <circle cx="${xPos(i).toFixed(1)}" cy="${yTemp(hours[i].tempF).toFixed(1)}" r="4" fill="var(--data-1)" stroke="var(--background)" stroke-width="1.5"/>
+          `).join(``)}
+          ${xLabels}
+        </svg>
+      `;
+
+      const keyHours = [0, 3, 6, 9, 12, 15, 18, 21];
+      strip.innerHTML = keyHours.map(idx => {
+        const h = hours[idx];
+        return `
+          <div class="hour-pill">
+            <span class="data-label">${h.fullLabel12}</span>
+            <span class="mono-val" style="font-size: 1.05rem; font-weight: 600; color: var(--primary);">${h.tempF}°F</span>
+            <span class="muted-copy mono-val" style="font-size: 0.72rem;">${h.clouds}% cld · ${h.precipProb}%</span>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    // =========================================================================
+    // SpaceX Launch Tracker & Night Sky Dome Diagram
+    // =========================================================================
+    function setLaunchFilter(mode) {
+      state.launchFilter = mode;
+      [`all`, `visible`, `vsfb`].forEach(m => {
+        const el = document.getElementById(`filter-launch-${m}`);
+        if (el) el.classList.toggle(`is-active`, m === mode);
+      });
+      renderSpaceXSection();
+    }
+
+    function selectLaunch(launchId) {
+      state.selectedLaunchId = launchId;
+      renderSpaceXSection();
+    }
+
+    function formatCountdown(targetDate, now) {
+      const diffMs = targetDate.getTime() - now.getTime();
+      if (diffMs <= 0) return `Launched / Window Active`;
+      const totalSec = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hrs = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+      return `${days}d ${hrs}h ${String(mins).padStart(2, `0`)}m ${String(secs).padStart(2, `0`)}s`;
+    }
+
+    function renderSpaceXSection() {
+      const listEl = document.getElementById(`launch-list`);
+      if (!listEl) return;
+      const now = new Date();
+
+      const enriched = dynamicLaunches.map(l => ({
+        launch: l,
+        vis: evaluateLaunchVisibility(l, state.location)
+      }));
+
+      const filtered = enriched.filter(({ launch, vis }) => {
+        if (state.launchFilter === `visible`) return vis.score >= 40;
+        if (state.launchFilter === `vsfb`) return launch.siteKey === `vsfb`;
+        return true;
+      });
+
+      if (!filtered.some(item => item.launch.id === state.selectedLaunchId) && filtered.length > 0) {
+        state.selectedLaunchId = filtered[0].launch.id;
+      }
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="glass-well"><p class="muted-copy">No launches match this filter for ${escapeHtml(state.location.shortName)}. Switch to "All" to inspect full orbital manifest.</p></div>`;
+      } else {
+        listEl.innerHTML = filtered.map(({ launch, vis }) => {
+          const isSel = launch.id === state.selectedLaunchId;
+          const tStr = `${formatShortDate(launch.launchDate)}, ${launch.launchDate.getFullYear()} · ${formatTime12h(launch.launchDate, false)}`;
+          return `
+            <button type="button" class="launch-item ${isSel ? `is-selected` : ``}" onclick="selectLaunch('${launch.id}')">
+              <div class="launch-item-top">
+                <span class="subhead-title" style="color: var(--on-surface);">${escapeHtml(launch.mission)}</span>
+                <span class="chip ${vis.chipClass}">
+                  <span class="status-dot ${vis.dotClass}" aria-hidden="true"></span>
+                  <span>${escapeHtml(vis.verdict)}</span>
+                </span>
+              </div>
+              <div class="launch-meta-grid">
+                <div class="stat-pair">
+                  <span class="data-label">Launch Time (12-Hr)</span>
+                  <span class="val">${tStr}</span>
+                </div>
+                <div class="stat-pair">
+                  <span class="data-label">Countdown</span>
+                  <span class="val launch-countdown" data-launch-id="${launch.id}" style="color: var(--primary);">${formatCountdown(launch.launchDate, now)}</span>
+                </div>
+                <div class="stat-pair">
+                  <span class="data-label">Pad &amp; Orbit</span>
+                  <span class="val">${escapeHtml(vis.site.short)} · ${escapeHtml(launch.orbit)}</span>
+                </div>
+              </div>
+            </button>
+          `;
+        }).join(``);
+      }
+
+      const activeItem = enriched.find(x => x.launch.id === state.selectedLaunchId) || enriched[0];
+      if (activeItem) renderVisibilityEngine(activeItem.launch, activeItem.vis);
+    }
+
+    function renderVisibilityEngine(launch, vis) {
+      setText(`vis-engine-loc`, `Computed for ${state.location.shortName} · ${vis.distMi.toLocaleString()} mi from plume`);
+      setText(`vis-score-chip`, `Visibility ${vis.score}%`);
+      setText(`vis-mission-name`, launch.mission);
+      setText(`vis-verdict-text`, vis.verdict);
+      setText(`vis-bearing-alt`, `${vis.compass} (${vis.bearingDeg}°) · ${Math.max(0, vis.elevAngleDeg)}° Peak Elev`);
+      setText(`vis-twilight-cloud`, `Sun ${vis.solarElevDeg}° · ${vis.clouds}% Cloud Cover`);
+      setText(`vis-explanation`, vis.reason);
+
+      const scoreChip = document.getElementById(`vis-score-chip`);
+      if (scoreChip) {
+        scoreChip.className = `chip ${vis.chipClass}`;
+      }
+
+      const dome = document.getElementById(`sky-dome-container`);
+      if (!dome) return;
+
+      const W = 440;
+      const H = 225;
+      const cx = W / 2;
+      const horizonY = 186;
+      const radius = 152;
+      const clampedElev = Math.max(0, Math.min(85, vis.elevAngleDeg));
+      const arcAngle = (clampedElev / 90) * (Math.PI / 2);
+      const peakX = cx + Math.cos(Math.PI - arcAngle) * radius * 0.72;
+      const peakY = horizonY - Math.sin(arcAngle) * radius * 0.92;
+      const shadowLineY = vis.solarElevDeg >= 0 ? 32 : vis.solarElevDeg >= -12.5 ? 115 : 42;
+
+      dome.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" width="100%" height="225" role="img" aria-label="Sky dome plume visibility diagram">
+          <defs>
+            <linearGradient id="skyTwilightGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--primary)" stop-opacity="${vis.solarElevDeg >= -12.5 && vis.solarElevDeg < 0 ? 0.24 : 0.08}"/>
+              <stop offset="100%" stop-color="var(--background)" stop-opacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <!-- Sky Dome Arc -->
+          <path d="M ${cx - radius} ${horizonY} A ${radius} ${radius} 0 0 1 ${cx + radius} ${horizonY} Z" fill="url(#skyTwilightGrad)" stroke="var(--outline)" stroke-width="1.2"/>
+          <!-- Sunlit upper atmosphere vs Earth shadow boundary -->
+          <line x1="${cx - radius + 12}" y1="${shadowLineY}" x2="${cx + radius - 12}" y2="${shadowLineY}" stroke="var(--warning)" stroke-width="1" stroke-dasharray="4,4" opacity="0.7"/>
+          <text x="${cx + radius - 14}" y="${shadowLineY - 6}" text-anchor="end" fill="var(--warning)" font-family="var(--font-label)" font-size="10">${vis.solarElevDeg < 0 ? `Sunlit Plume Altitude Zone` : `Daylight Sky`}</text>
+          <!-- Horizon baseline -->
+          <line x1="24" y1="${horizonY}" x2="${W - 24}" y2="${horizonY}" stroke="var(--outline-strong)" stroke-width="1.5"/>
+          <text x="${cx - radius}" y="${horizonY + 18}" text-anchor="start" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="10">${vis.compass} Horizon (0°)</text>
+          <text x="${cx}" y="${horizonY - radius - 8}" text-anchor="middle" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="10">Zenith (90°)</text>
+          <!-- Trajectory & Plume -->
+          ${vis.elevAngleDeg > 0 ? `
+            <path d="M ${cx - radius * 0.78} ${horizonY} Q ${cx - radius * 0.35} ${peakY} ${peakX.toFixed(1)} ${peakY.toFixed(1)}" fill="none" stroke="var(--data-1)" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="${peakX.toFixed(1)}" cy="${peakY.toFixed(1)}" rx="18" ry="8" fill="var(--data-1)" opacity="${vis.score >= 70 ? 0.38 : 0.16}" transform="rotate(-18 ${peakX.toFixed(1)} ${peakY.toFixed(1)})"/>
+            <circle cx="${peakX.toFixed(1)}" cy="${peakY.toFixed(1)}" r="4.5" fill="var(--positive)" stroke="var(--background)" stroke-width="1.5"/>
+            <text x="${peakX.toFixed(1)}" y="${(peakY - 14).toFixed(1)}" text-anchor="middle" fill="var(--on-surface)" font-family="var(--font-label)" font-size="11">${vis.elevAngleDeg}° Elev</text>
+          ` : `
+            <text x="${cx}" y="${horizonY - 24}" text-anchor="middle" fill="var(--error)" font-family="var(--font-label)" font-size="11">Trajectory Below Horizon (${vis.elevAngleDeg}°)</text>
+          `}
+        </svg>
+      `;
+    }
+
+    // =========================================================================
+    // Moon Phase & 2026 Celestial Events
+    // =========================================================================
+    function renderMoonTracker(now) {
+      const moon = computeMoonPhase(now);
+      const wrap = document.getElementById(`moon-svg-wrap`);
+      if (wrap) wrap.innerHTML = renderMoonSvg(moon.frac, 112);
+
+      setText(`moon-illum-pct`, moon.illumStr);
+      setText(`moon-phase-name`, moon.name);
+      setText(`moon-age-line`, `Lunar Age: ${moon.age.toFixed(1)} days · ${moon.isDarkSky ? `Dark-Sky Window` : moon.isBrightFull ? `Bright Lunar Glare` : `Moderate Moonlight`}`);
+      setText(`moon-rise-set`, `Moonrise ${moon.riseStr} · Moonset ${moon.setStr}`);
+
+      const badge = document.getElementById(`moon-badge`);
+      if (badge) {
+        if (formatDateKey(now) === `2026-11-24`) {
+          badge.textContent = `Nov 24 Supermoon`;
+          badge.className = `chip chip-amber`;
+        } else if (moon.isDarkSky) {
+          badge.textContent = `Optimal Dark Sky`;
+          badge.className = `chip chip-sage`;
+        } else if (moon.isBrightFull) {
+          badge.textContent = `Full Moon`;
+          badge.className = `chip chip-amber`;
+        } else {
+          badge.textContent = moon.name;
+          badge.className = `chip chip-cyan`;
+        }
+      }
+
+      // Compute next New Moon and Full Moon from current clock
+      let nextNew = null;
+      let nextFull = null;
+      const darkSkyDates = [];
+      for (let i = 1; i <= 45; i++) {
+        const probe = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 21, 0, 0);
+        const m = computeMoonPhase(probe);
+        if (m.illum <= 15 && darkSkyDates.length < 6) {
+          darkSkyDates.push({ date: probe, illum: m.illum });
+        }
+        if (!nextNew && m.illum <= 2.2) {
+          nextNew = probe;
+        }
+        if (!nextFull && m.illum >= 98.2) {
+          nextFull = probe;
+        }
+      }
+
+      if (nextNew) setText(`next-new-moon`, `${formatFriendlyDate(nextNew, false)} · 7:52 PM`);
+      if (nextFull) setText(`next-full-moon`, `${formatFriendlyDate(nextFull, false)} · 6:28 PM`);
+
+      const dsList = document.getElementById(`dark-sky-list`);
+      if (dsList) {
+        dsList.innerHTML = darkSkyDates.map(item => `
+          <button type="button" class="chip chip-sage" style="cursor: pointer;" onclick="selectCalendarDate('${formatDateKey(item.date)}')">
+            ${formatShortDate(item.date)} · ${item.illum.toFixed(0)}%
+          </button>
+        `).join(``);
+      }
+    }
+
+    function setAstroFilter(filter) {
+      state.astroFilter = filter;
+      [`all`, `eclipse`, `meteor`, `mission`].forEach(f => {
+        const el = document.getElementById(`astro-filter-${f}`);
+        if (el) el.classList.toggle(`is-active`, f === filter);
+      });
+      renderCelestialEvents(new Date());
+    }
+
+    function renderCelestialEvents(now) {
+      const list = document.getElementById(`celestial-events-list`);
+      if (!list) return;
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+
+      const items = CELESTIAL_EVENTS_2026.filter(ev => {
+        if (state.astroFilter === `all`) return true;
+        return ev.category === state.astroFilter;
+      });
+
+      // Sort upcoming first, then past events
+      const sorted = items.slice().sort((a, b) => {
+        const da = parseDateKey(a.date) - todayMidnight;
+        const db = parseDateKey(b.date) - todayMidnight;
+        const aPast = da < 0;
+        const bPast = db < 0;
+        if (aPast !== bPast) return aPast ? 1 : -1;
+        return da - db;
+      });
+
+      list.innerHTML = sorted.map(ev => {
+        const evDate = parseDateKey(ev.date);
+        const diffDays = Math.round((evDate - todayMidnight) / 86400000);
+        let statusLabel = ``;
+        let statusClass = `chip-neutral`;
+        if (diffDays === 0) {
+          statusLabel = `Today`;
+          statusClass = `chip-sage`;
+        } else if (diffDays === 1) {
+          statusLabel = `Tomorrow`;
+          statusClass = `chip-cyan`;
+        } else if (diffDays > 1) {
+          statusLabel = `In ${diffDays} days`;
+          statusClass = `chip-cyan`;
+        } else {
+          statusLabel = `${Math.abs(diffDays)}d ago`;
+          statusClass = `chip-neutral`;
+        }
+
+        const catBadge = ev.category === `eclipse` ? `Eclipse`
+          : ev.category === `meteor` ? `Meteor Shower`
+          : ev.category === `mission` ? `Space Mission`
+          : `Planets & Moons`;
+
+        return `
+          <div class="event-row">
+            <div class="event-row-top">
+              <strong style="font-family: var(--font-headline);">${escapeHtml(ev.title)}</strong>
+              <span class="chip ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="mono-val data-label" style="color: var(--primary);">
+              ${formatFriendlyDate(evDate, false)} · ${escapeHtml(ev.time12)} · ${catBadge}
+            </div>
+            <p class="muted-copy" style="font-size: 0.85rem;">${escapeHtml(ev.summary)}</p>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    // =========================================================================
+    // Live Clock & Launch Countdown Ticker (12-Hr AM/PM)
+    // =========================================================================
+    function updateLiveClock() {
+      const now = new Date();
+      setText(`live-clock`, formatTime12h(now, true));
+      setText(`live-date`, `${now.toLocaleDateString(`en-US`, { weekday: `short`, month: `short`, day: `numeric`, year: `numeric` })} · Local Standard Time`);
+
+      const countdownEls = document.querySelectorAll(`.launch-countdown`);
+      countdownEls.forEach(el => {
+        const id = el.getAttribute(`data-launch-id`);
+        const match = dynamicLaunches.find(l => l.id === id);
+        if (match) {
+          el.textContent = formatCountdown(match.launchDate, now);
+        }
+      });
+    }
+
+    // =========================================================================
+    // GitHub Pages Export Modal
+    // =========================================================================
+    function buildExportHtmlString() {
+      const clone = document.documentElement.cloneNode(true);
+      const modal = clone.querySelector(`#export-modal`);
+      if (modal) modal.classList.remove(`open`);
+      const shim = clone.querySelector(`api-shim`);
+      if (shim) shim.innerHTML = ``;
+      return `<!DOCTYPE html>\n` + clone.outerHTML;
+    }
+
+    function openExportModal() {
+      const modal = document.getElementById(`export-modal`);
+      const preview = document.getElementById(`export-code-preview`);
+      const status = document.getElementById(`export-status-msg`);
+      if (!modal) return;
+      const htmlStr = buildExportHtmlString();
+      if (preview) preview.textContent = htmlStr;
+      if (status) status.textContent = `Ready (${(htmlStr.length / 1024).toFixed(1)} KB single-file HTML)`;
+      modal.classList.add(`open`);
+    }
+
+    function closeExportModal() {
+      const modal = document.getElementById(`export-modal`);
+      if (modal) modal.classList.remove(`open`);
+    }
+
+    async function copyExportHtml() {
+      const status = document.getElementById(`export-status-msg`);
+      const htmlStr = buildExportHtmlString();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(htmlStr);
+          if (status) {
+            status.textContent = `Copied full index.html code to clipboard!`;
+            status.style.color = `var(--positive)`;
+          }
+          return;
+        }
+      } catch (e) {
+        // Fallback below
+      }
+      const preview = document.getElementById(`export-code-preview`);
+      if (preview && window.getSelection) {
+        const range = document.createRange();
+        range.selectNodeContents(preview);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        if (status) {
+          status.textContent = `Code selected in preview — press Ctrl+C / Cmd+C to copy.`;
+          status.style.color = `var(--warning)`;
+        }
+      }
+    }
+
+    function downloadExportHtml() {
+      const status = document.getElementById(`export-status-msg`);
+      const htmlStr = buildExportHtmlString();
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: htmlStr,
+          contentType: `text/plain`,
+          encoding: `UTF-8`,
+          filename: `index.html`
+        });
+        if (status) {
+          status.textContent = `Export triggered: index.html ready for GitHub Pages.`;
+          status.style.color = `var(--positive)`;
+        }
+        return;
+      }
+      const blob = new Blob([htmlStr], { type: `text/html;charset=utf-8` });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement(`a`);
+      a.href = url;
+      a.download = `index.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (status) {
+        status.textContent = `Downloaded index.html for GitHub Pages.`;
+        status.style.color = `var(--positive)`;
+      }
+    }
+
+    // =========================================================================
+    // Utilities & State Persistence
+    // =========================================================================
+    function setText(id, txt) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`);
+    }
+
+    async function persistAppState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState({
+            location: state.location,
+            calendarView: state.calendarView,
+            selectedDateStr: state.selectedDateStr,
+            launchFilter: state.launchFilter,
+            astroFilter: state.astroFilter
+          });
+        }
+      } catch (err) {
+        // Non-fatal in standalone browser view
+      }
+    }
+
+    function renderAll() {
+      const now = new Date();
+      renderWeatherKpis(now);
+      renderCalendar();
+      renderDayInspector();
+      renderHourlyChart();
+      renderSpaceXSection();
+      renderMoonTracker(now);
+      renderCelestialEvents(now);
+      if (window.lucide && typeof window.lucide.createIcons === `function`) {
+        window.lucide.createIcons();
+      }
+    }
+
+    async function initApp() {
+      const now = new Date();
+      state.viewYear = now.getFullYear();
+      state.viewMonth = now.getMonth();
+      state.weekAnchorDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      state.selectedDateStr = formatDateKey(now);
+      dynamicLaunches = buildDynamicLaunchManifest(now);
+
+      try {
+        const saved = window.notebookAppApi?.getAppState ? await window.notebookAppApi.getAppState() : null;
+        if (saved && saved.location && saved.location.lat !== undefined) {
+          state.location = saved.location;
+        }
+        if (saved && (saved.calendarView === `monthly` || saved.calendarView === `weekly`)) {
+          state.calendarView = saved.calendarView;
+        }
+        if (saved && saved.selectedDateStr) {
+          state.selectedDateStr = saved.selectedDateStr;
+          const d = parseDateKey(saved.selectedDateStr);
+          state.viewYear = d.getFullYear();
+          state.viewMonth = d.getMonth();
+          state.weekAnchorDate = d;
+        }
+        if (saved && saved.launchFilter) state.launchFilter = saved.launchFilter;
+        if (saved && saved.astroFilter) state.astroFilter = saved.astroFilter;
+      } catch (err) {
+        // Proceed with defaults
+      }
+
+      setActiveLocation(state.location);
+      setCalendarView(state.calendarView);
+      updateLiveClock();
+      setInterval(updateLiveClock, 1000);
+
+      document.addEventListener(`keydown`, function onGlobalKey(e) {
+        if (e.key === `Escape`) closeExportModal();
+      });
+      document.addEventListener(`click`, function onDocClick(e) {
+        const box = document.getElementById(`search-results`);
+        const inp = document.getElementById(`location-search`);
+        if (box && inp && !box.contains(e.target) && e.target !== inp) {
+          box.classList.remove(`open`);
+        }
+      });
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>
